@@ -1,0 +1,28 @@
+{
+    "name": "MultiWiiSerialProtocol",
+    "description": "MultiWii Serial Protocol (MSP) framework",
+    "keywords": "MSP",
+    "authors": {
+        "name": "Martin Budden",
+        "url": "https://github.com/martinbudden"
+    },
+    "repository": {
+        "type": "git",
+        "url": "https://github.com/martinbudden/Library-MultiWiiSerialProtocol.git"
+    },
+    "dependencies": [
+        {
+            "name": "martinbudden/StreamBuf",
+            "version": "^0.0.1"
+        },
+        {
+            "name": "martinbudden/TaskBase",
+            "version": "^0.0.2"
+        }
+    ],
+    "license": "GPL-3.0-or-later",
+    "version": "0.0.1",
+    "frameworks": "*",
+    "platforms": "*",
+    "headers": [ "MSP_Base.h", "MSP_Box.h", "MSP_Protocol.h", "MSP_SerialBase.h", "MSP_Stream.h", "MSP_Task.h" ]
+}
