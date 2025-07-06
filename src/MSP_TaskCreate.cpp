@@ -20,9 +20,15 @@
 
 #include "MSP_Task.h"
 
+#if defined(USE_DEBUG_PRINTF_TASK_INFORMATION)
 #if defined(USE_ESPNOW)
 #include <HardwareSerial.h>
 #endif
+#endif
+
+#include <array>
+#include <cstring>
+
 #if defined(USE_FREERTOS)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
@@ -39,15 +45,15 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial,
     static TaskBase::parameters_t taskParameters { // NOLINT(misc-const-correctness) false positive
         .task = &mspTask
     };
-#if !defined(MSP_TASK_STACK_DEPTH)
-    enum { MSP_TASK_STACK_DEPTH = 4096 };
+#if !defined(MSP_TASK_STACK_DEPTH_BYTES)
+    enum { MSP_TASK_STACK_DEPTH_BYTES = 4096 };
 #endif
-    static std::array <StackType_t, MSP_TASK_STACK_DEPTH> stack;
+    static std::array <StackType_t, MSP_TASK_STACK_DEPTH_BYTES> stack;
     static StaticTask_t taskBuffer;
     taskInfo = {
         .taskHandle = nullptr,
         .name = "MSP_Task",
-        .stackDepth = MSP_TASK_STACK_DEPTH,
+        .stackDepth = MSP_TASK_STACK_DEPTH_BYTES,
         .stackBuffer = &stack[0],
         .priority = priority,
         .coreID = coreID,
@@ -63,10 +69,12 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial,
         taskInfo.coreID
     );
     assert(taskHandle != nullptr && "Unable to create MSP task.");
+#if defined(USE_DEBUG_PRINTF_TASK_INFORMATION)
 #if !defined(FRAMEWORK_ESPIDF)
     std::array<char, 128> buf;
     sprintf(&buf[0], "**** MSP_Task,      core:%u, priority:%u, task interval:%ums\r\n", coreID, priority, taskIntervalMicroSeconds / 1000);
     Serial.print(&buf[0]);
+#endif
 #endif
 #else
     (void)taskInfo;

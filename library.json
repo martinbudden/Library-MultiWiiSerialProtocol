@@ -21,7 +21,7 @@
         }
     ],
     "license": "GPL-3.0-or-later",
-    "version": "0.0.1",
+    "version": "0.0.2",
     "frameworks": "*",
     "platforms": "*",
     "headers": [ "MSP_Base.h", "MSP_Box.h", "MSP_Protocol.h", "MSP_SerialBase.h", "MSP_Stream.h", "MSP_Task.h" ]
