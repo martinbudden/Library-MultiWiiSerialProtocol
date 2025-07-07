@@ -491,7 +491,7 @@ void test_msp_set_name()
 
 void test_msp_set_name_loop()
 {
-    static MSP_Test msp; 
+    static MSP_Test msp;
     static MSP_Stream mspStream(msp);
 
     mspStream.setPacketState(MSP_Stream::MSP_IDLE);

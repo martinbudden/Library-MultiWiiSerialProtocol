@@ -320,9 +320,9 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
     static const std::array<uint8_t, MSP_Base::VERSION_COUNT> mspMagic = { 'M', 'M', 'X' };
 
     packet_with_header_t ret;
-    ret.hdrBuf = { 
-        '$', 
-        mspMagic[mspVersion], 
+    ret.hdrBuf = {
+        '$',
+        mspMagic[mspVersion],
         packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
     };
 
