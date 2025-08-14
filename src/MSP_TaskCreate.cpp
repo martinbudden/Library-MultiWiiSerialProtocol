@@ -61,7 +61,7 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial,
     const TaskHandle_t taskHandle = xTaskCreateStaticPinnedToCore(
         MSP_Task::Task,
         taskInfo.name,
-        taskInfo.stackDepth,
+        taskInfo.stackDepth / sizeof(StackType_t),
         &taskParameters,
         taskInfo.priority,
         taskInfo.stackBuffer,

@@ -11,3 +11,19 @@ Both Betaflight and Cleanflight are licensed under the GNU GPL
 
 The original Betaflight copyright notice is included in License.txt and the program files,
 as per the GNU GPL "keep intact all notices” requirement.
+
+## Class structure
+
+```mermaid
+classDiagram
+    class MSP_SerialBase {
+        virtual int sendFrame() = 0
+        virtual void processInput() = 0;
+    }
+    class MSP_Base {
+    }
+    class MSP_Stream {
+    }
+    MSP_Stream *-- MSP_Base
+    MSP_Stream o-- MSP_SerialBase
+```
