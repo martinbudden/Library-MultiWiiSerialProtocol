@@ -23,7 +23,7 @@
 
 #include <TimeMicroSeconds.h>
 
-#if defined(USE_FREERTOS)
+#if defined(FRAMEWORK_USE_FREERTOS)
 #include <freertos/FreeRTOS.h>
 #include <freertos/semphr.h>
 #endif
@@ -47,7 +47,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
 */
 [[noreturn]] void MSP_Task::task() // NOLINT(readability-convert-member-functions-to-static)
 {
-#if defined(USE_FREERTOS)
+#if defined(FRAMEWORK_USE_FREERTOS)
     // pdMS_TO_TICKS Converts a time in milliseconds to a time in ticks.
     const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_taskIntervalMicroSeconds / 1000);
     assert(taskIntervalTicks > 0 && "MSP taskIntervalTicks is zero.");
@@ -67,7 +67,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
     }
 #else
     while (true) {}
-#endif // USE_FREERTOS
+#endif // FRAMEWORK_USE_FREERTOS
 }
 
 /*!

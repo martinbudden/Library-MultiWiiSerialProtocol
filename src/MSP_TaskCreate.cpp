@@ -20,27 +20,26 @@
 
 #include "MSP_Task.h"
 
-#if defined(USE_DEBUG_PRINTF_TASK_INFORMATION)
-#if defined(USE_ESPNOW)
-#include <HardwareSerial.h>
-#endif
-#endif
-
 #include <array>
 #include <cstring>
 
-#if defined(USE_FREERTOS)
+#if defined(FRAMEWORK_USE_FREERTOS)
 #include <freertos/FreeRTOS.h>
 #include <freertos/task.h>
 #endif
 
+
+MSP_Task* MSP_Task::createTask(MSP_SerialBase& mspSerial, uint8_t priority, uint8_t coreID, uint32_t taskIntervalMicroSeconds) // NOLINT(readability-convert-member-functions-to-static)
+{
+    task_info_t taskInfo {}; // NOLINT(cppcoreguidelines-init-variables) false positive
+    return createTask(taskInfo, mspSerial, priority, coreID, taskIntervalMicroSeconds);
+}
 
 MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial, uint8_t priority, uint8_t coreID, uint32_t taskIntervalMicroSeconds) // NOLINT(readability-convert-member-functions-to-static)
 {
     // Note that task parameters must not be on the stack, since they are used when the task is started, which is after this function returns.
     static MSP_Task mspTask(taskIntervalMicroSeconds, mspSerial);
 
-#if defined(USE_FREERTOS)
     // Note that task parameters must not be on the stack, since they are used when the task is started, which is after this function returns.
     static TaskBase::parameters_t taskParameters { // NOLINT(misc-const-correctness) false positive
         .task = &mspTask
@@ -48,8 +47,7 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial,
 #if !defined(MSP_TASK_STACK_DEPTH_BYTES)
     enum { MSP_TASK_STACK_DEPTH_BYTES = 4096 };
 #endif
-    static std::array <StackType_t, MSP_TASK_STACK_DEPTH_BYTES> stack;
-    static StaticTask_t taskBuffer;
+    static std::array <uint8_t, MSP_TASK_STACK_DEPTH_BYTES> stack;
     taskInfo = {
         .taskHandle = nullptr,
         .name = "MSP_Task",
@@ -57,7 +55,14 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial,
         .stackBuffer = &stack[0],
         .priority = priority,
         .coreID = coreID,
+        .taskIntervalMicroSeconds = taskIntervalMicroSeconds,
     };
+
+#if defined(FRAMEWORK_USE_FREERTOS)
+    assert(std::strlen(taskInfo.name) < configMAX_TASK_NAME_LEN);
+    assert(taskInfo.priority < configMAX_PRIORITIES);
+
+    static StaticTask_t taskBuffer;
     const TaskHandle_t taskHandle = xTaskCreateStaticPinnedToCore(
         MSP_Task::Task,
         taskInfo.name,
@@ -69,23 +74,9 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial,
         taskInfo.coreID
     );
     assert(taskHandle != nullptr && "Unable to create MSP task.");
-#if defined(USE_DEBUG_PRINTF_TASK_INFORMATION)
-#if !defined(FRAMEWORK_ESPIDF)
-    std::array<char, 128> buf;
-    sprintf(&buf[0], "**** MSP_Task,      core:%u, priority:%u, task interval:%ums\r\n", coreID, priority, taskIntervalMicroSeconds / 1000);
-    Serial.print(&buf[0]);
-#endif
-#endif
 #else
-    (void)taskInfo;
-    (void)priority;
-    (void)coreID;
-#endif // USE_FREERTOS
-    return &mspTask;
-}
+    (void)taskParameters;
+#endif // FRAMEWORK_USE_FREERTOS
 
-MSP_Task* MSP_Task::createTask(MSP_SerialBase& mspSerial, uint8_t priority, uint8_t coreID, uint32_t taskIntervalMicroSeconds) // NOLINT(readability-convert-member-functions-to-static)
-{
-    task_info_t taskInfo {}; // NOLINT(cppcoreguidelines-init-variables) false positive
-    return createTask(taskInfo, mspSerial, priority, coreID, taskIntervalMicroSeconds);
+    return &mspTask;
 }

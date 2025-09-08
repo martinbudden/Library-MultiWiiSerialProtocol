@@ -483,7 +483,7 @@ MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header
 
 void MSP_Stream::processReceivedReply()
 {
-    MSP_Base::packet_t reply = {
+    const MSP_Base::packet_t reply = {
         .payload = StreamBuf(&_inBuf[0], _dataSize),
         .cmd = static_cast<int16_t>(_cmdMSP),
         .result = 0,
