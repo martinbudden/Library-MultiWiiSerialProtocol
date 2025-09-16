@@ -24,6 +24,7 @@
 
 class MSP_SerialBase;
 
+
 class MSP_Task : public TaskBase {
 public:
     MSP_Task(uint32_t taskIntervalMicroSeconds, MSP_SerialBase& mspSerial) :
@@ -31,8 +32,8 @@ public:
         _mspSerial(mspSerial)
         {}
 public:
-    static MSP_Task* createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial, uint8_t priority, uint8_t coreID, uint32_t taskIntervalMicroSeconds);
-    static MSP_Task* createTask(MSP_SerialBase& mspSerial, uint8_t priority, uint8_t coreID, uint32_t taskIntervalMicroSeconds);
+    static MSP_Task* createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroSeconds);
+    static MSP_Task* createTask(MSP_SerialBase& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroSeconds);
 private:
     // class is not copyable or moveable
     MSP_Task(const MSP_Task&) = delete;
