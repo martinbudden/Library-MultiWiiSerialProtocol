@@ -154,7 +154,7 @@ public: // for testing
     uint8_t getInbuf(size_t index) { return _inBuf[index]; }
     uint8_t getCheckSum1() const { return _checksum1; }
     uint8_t getCheckSum2() const { return _checksum2; }
-private:
+public: // made public for testing
     static uint8_t checksumXOR(uint8_t checksum, const uint8_t* data, size_t len);
     static uint8_t crc8_calc(uint8_t crc, unsigned char a, uint8_t poly);
     static uint8_t crc8_update(uint8_t crc, const void *data, uint32_t length, uint8_t poly);

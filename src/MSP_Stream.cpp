@@ -299,14 +299,15 @@ void MSP_Stream::processPendingRequest()
 }
 
 /*!
-Creates an MSP header for packet.payload
+Creates an MSP_Stream::packet_with_header_t from the MSP_Base::packet
+and sends the stream packet to the serial device.
 
-MSP V1 packet is of the form:
+MSP V1 stream packet is of the form:
 
 3 bytes header: two start bytes $M followed by message direction (< or >) or the error message indicator (!).
-< - from the flight controller (FC →),
-> - to the flight controller (→ FC).
-! - Error Message.
+< - from the flight controller (FC →)
+> - to the flight controller (→ FC)
+! - error message.
 
 one byte payload length
 one byte message type
@@ -317,17 +318,21 @@ The checksum of a request (ie a message with no payload) equals the type.
 */
 MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& packet, MSP_Base::version_e mspVersion)
 {
-    static const std::array<uint8_t, MSP_Base::VERSION_COUNT> mspMagic = { 'M', 'M', 'X' };
+    static constexpr std::array<uint8_t, MSP_Base::VERSION_COUNT> mspMagic = { 'M', 'M', 'X' };
 
-    packet_with_header_t ret;
-    ret.hdrBuf = {
-        '$',
-        mspMagic[mspVersion],
-        packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
+    packet_with_header_t ret = {
+        .hdrBuf = {
+            '$',
+            mspMagic[mspVersion],
+            packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
+        },
+        .crcBuf = {},
+        .dataPtr = packet.payload.ptr(),
+        .dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining()),
+        .hdrLen = 3,
+        .crcLen = 0,
+        .checksum = 0
     };
-
-    ret.dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining());
-    ret.dataPtr = packet.payload.ptr();
 
     enum { V1_CHECKSUM_STARTPOS = 3 };
 
@@ -405,7 +410,7 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
     }
 
     // Send the frame
-    if (_mspSerialBase != nullptr) {
+    if (_mspSerialBase) {
         _mspSerialBase->sendFrame(&ret.hdrBuf[0], ret.hdrLen, ret.dataPtr, ret.dataLen, &ret.crcBuf[0], ret.crcLen);
     }
     return ret;
@@ -443,6 +448,8 @@ MSP_Base::packet_t MSP_Stream::processInbuf()
 
 /*!
 Called when the state machine has assembled a packet into _inBuf.
+
+pwh is optional parameter for use by test code.
 */
 MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header_t* pwh)
 {
@@ -496,6 +503,9 @@ void MSP_Stream::processReceivedReply()
     _mspBase.processReply(reply);
 }
 
+/*!
+pwh is optional parameter for use by test code.
+*/
 bool MSP_Stream::putChar(uint8_t c, packet_with_header_t* pwh)
 {
     bool ret = false;
@@ -506,9 +516,9 @@ bool MSP_Stream::putChar(uint8_t c, packet_with_header_t* pwh)
     if (_packetState == MSP_COMMAND_RECEIVED) {
         ret = true;
         if (_packetType == MSP_PACKET_COMMAND) {
-            processReceivedCommand(pwh);
+            processReceivedCommand(pwh); // eventually calls processOutCommand or processInCommand
         } else if (_packetType == MSP_PACKET_REPLY) {
-            processReceivedReply();
+            processReceivedReply(); // by default does nothing
         }
 
         // we've processed the command, so return to idle state
