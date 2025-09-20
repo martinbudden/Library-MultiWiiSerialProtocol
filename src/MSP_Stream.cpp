@@ -320,19 +320,15 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
 {
     static constexpr std::array<uint8_t, MSP_Base::VERSION_COUNT> mspMagic = { 'M', 'M', 'X' };
 
-    packet_with_header_t ret = {
-        .hdrBuf = {
-            '$',
-            mspMagic[mspVersion],
-            packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
-        },
-        .crcBuf = {},
-        .dataPtr = packet.payload.ptr(),
-        .dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining()),
-        .hdrLen = 3,
-        .crcLen = 0,
-        .checksum = 0
+    packet_with_header_t ret;
+    ret.hdrBuf = {
+        '$',
+        mspMagic[mspVersion],
+        packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
     };
+
+    ret.dataPtr = packet.payload.ptr();
+    ret.dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining());
 
     enum { V1_CHECKSUM_STARTPOS = 3 };
 

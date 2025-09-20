@@ -21,7 +21,7 @@
 #include "MSP_SerialBase.h"
 #include "MSP_Task.h"
 
-#include <TimeMicroSeconds.h>
+#include <TimeMicroseconds.h>
 #include <cassert>
 
 #if defined(FRAMEWORK_USE_FREERTOS)
@@ -37,16 +37,24 @@
 #endif
 #endif
 
+
+MSP_Task::MSP_Task(uint32_t taskIntervalMicroseconds, MSP_SerialBase& mspSerial) :
+    TaskBase(taskIntervalMicroseconds),
+    _taskIntervalMilliseconds(taskIntervalMicroseconds/1000), // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    _mspSerial(mspSerial)
+{
+}
+
 /*!
 loop() function for when not using FREERTOS
 */
 void MSP_Task::loop()
 {
-    const uint32_t timeMicroSeconds = timeUs();
-    _timeMicroSecondsDelta = timeMicroSeconds - _timeMicroSecondsPrevious;
+    const uint32_t tickCount = timeMs();
+    _tickCountDelta = tickCount - _tickCountPrevious;
 
-    if (_timeMicroSecondsDelta >= _taskIntervalMicroSeconds) { // if _taskIntervalMicroSeconds has passed, then run the update
-        _timeMicroSecondsPrevious = timeMicroSeconds;
+    if (_tickCountDelta >= _taskIntervalMilliseconds) { // if _taskIntervalMicroseconds has passed, then run the update
+        _tickCountPrevious = tickCount;
         _mspSerial.processInput();
     }
 }
@@ -58,7 +66,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
 {
 #if defined(FRAMEWORK_USE_FREERTOS)
     // pdMS_TO_TICKS Converts a time in milliseconds to a time in ticks.
-    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_taskIntervalMicroSeconds / 1000);
+    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_taskIntervalMicroseconds / 1000);
     assert(taskIntervalTicks > 0 && "MSP taskIntervalTicks is zero.");
 
     _previousWakeTimeTicks = xTaskGetTickCount();
