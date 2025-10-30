@@ -1,0 +1,28 @@
+{
+    "cSpell.words": [
+        "ahrs",
+        "altera",
+        "bugprone",
+        "clangtidy",
+        "cppcoreguidelines",
+        "earlephilhower",
+        "libc",
+        "llvmlibc",
+        "martinbudden",
+        "picotool",
+        "raspberrypi",
+        "rpipico",
+        "suppr",
+        "unflags",
+        "Wattributes",
+        "Wdisabled",
+        "Wdouble",
+        "Werror",
+        "Wextra",
+        "Wimplicit",
+        "Winline",
+        "Wnarrowing",
+        "Wsign",
+        "Wtrampolines"
+    ]
+}
