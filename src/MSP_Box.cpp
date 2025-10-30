@@ -243,7 +243,7 @@ void MSP_Box::init(bool accelerometerAvailable, bool inflightAccCalibrationEnabl
     ena.set(BOX_READY);
 
     // check that all enabled IDs are in boxes array (check may be skipped when using findBoxById() functions)
-    for (int boxId = 0;  boxId < BOX_COUNT; ++boxId) {
+    for (size_t boxId = 0;  boxId < BOX_COUNT; ++boxId) {
         if (ena[boxId] && findBoxByBoxId(static_cast<boxId_e>(boxId)) == nullptr) {
             ena.reset(boxId); // this should not happen, but handle it gracefully
         }

@@ -46,10 +46,11 @@
 
 #pragma once
 
+#include <cstddef>
 #include <cstdint>
 
 class MSP_SerialBase {
 public:
-    virtual int sendFrame(const uint8_t* hdr, int hdrLen, const uint8_t* data, int dataLen, const uint8_t* crc, int crcLen) = 0;
+    virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen) = 0;
     virtual void processInput() = 0;
 };

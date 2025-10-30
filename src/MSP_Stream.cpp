@@ -376,7 +376,7 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
 
         // Fill V2 header
         hdrV2->flags = packet.flags;
-        hdrV2->cmd = packet.cmd;
+        hdrV2->cmd = static_cast<uint16_t>(packet.cmd);
         hdrV2->size = ret.dataLen;
 
         // V2 CRC: only V2 header + data payload
@@ -394,7 +394,7 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
         ret.hdrLen += sizeof(mspHeaderV2_t);
 
         hdrV2->flags = packet.flags;
-        hdrV2->cmd = packet.cmd;
+        hdrV2->cmd = static_cast<uint16_t>(packet.cmd);
         hdrV2->size = ret.dataLen;
 
         ret.checksum = crc8_dvb_s2_update(0, reinterpret_cast<uint8_t*>(hdrV2), sizeof(mspHeaderV2_t)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)

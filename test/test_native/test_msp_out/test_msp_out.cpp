@@ -53,7 +53,7 @@ public:
     MSP_SerialTest(MSP_SerialTest&&) = delete;
     MSP_SerialTest& operator=(MSP_SerialTest&&) = delete;
 private:
-    virtual int sendFrame(const uint8_t* hdr, int hdrLen, const uint8_t* data, int dataLen, const uint8_t* crc, int crcLen) override;
+    virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen) override;
     virtual void processInput() override;
 };
 
@@ -64,7 +64,7 @@ Called from  MSP_Stream::serialEncode() which is called from MSP_Stream::process
 In "normal" implementations writes the frame to the serial port. 
 Here we just check that the correct value has been received.
 */
-int MSP_SerialTest::sendFrame(const uint8_t* hdr, int hdrLen, const uint8_t* data, int dataLen, const uint8_t* crc, int crcLen)
+size_t MSP_SerialTest::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen)
 {
     (void)crc;
     TEST_ASSERT_EQUAL('$', hdr[0]);
