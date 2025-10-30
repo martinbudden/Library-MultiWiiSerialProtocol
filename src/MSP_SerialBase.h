@@ -51,6 +51,7 @@
 
 class MSP_SerialBase {
 public:
+    virtual ~MSP_SerialBase() = default;
     virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen) = 0;
     virtual void processInput() = 0;
 };
