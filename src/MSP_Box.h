@@ -71,7 +71,7 @@ public:
     // Each page contains at most 32 boxes
     enum { MAX_BOXES_PER_PAGE = 32 };
     enum { PERMANENT_ID_NONE = 255 };
-    enum  boxId_e {
+    enum  box_id_e {
         // ARM flag
         BOX_ARM = 0,
         // Flight modes
@@ -79,7 +79,9 @@ public:
         BOX_HORIZON,
         BOX_MAG,
         BOX_ALTHOLD,
+        BOX_POSHOLD,
         BOX_HEADFREE,
+        BOX_CHIRP,
         BOX_PASSTHRU,
         BOX_FAILSAFE,
         BOX_GPS_RESCUE,
@@ -131,14 +133,14 @@ public:
 public:
     typedef int serializeBoxFn(StreamBuf& dst, const msp_box_t* box);
 public:
-    static const msp_box_t* findBoxByBoxId(boxId_e boxId);
+    static const msp_box_t* findBoxByBoxId(box_id_e boxId);
     static const msp_box_t* findBoxByPermanentId(uint8_t permanentId);
 
     static int serializeBoxName(StreamBuf& dst, const msp_box_t* box);
     void serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const;
     void serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const;
 protected:
-    bool getActiveBoxId(boxId_e boxId) const;
+    bool getActiveBoxId(box_id_e boxId) const;
     std::bitset<BOX_COUNT> _activeBoxIds {};
     static const std::array<MSP_Box::msp_box_t, MSP_Box::BOX_COUNT> boxes;
 };

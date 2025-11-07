@@ -84,7 +84,7 @@ const std::array<MSP_Box::msp_box_t, MSP_Box::BOX_COUNT> MSP_Box::boxes = {{
     { .boxId = BOX_PREARM,      .permanentId = 36, .boxName = "PREARM" },
     { .boxId = BOX_BEEP_GPS_COUNT, .permanentId = 37, .boxName = "GPS BEEP SATELLITE COUNT" },
     { .boxId = BOX_VTX_PIT_MODE, .permanentId = 39, .boxName = "VTX PIT MODE" },
-    { .boxId = BOX_USER1,       .permanentId = 40, .boxName = "USER1" }, // may be overridden by modeActivationConfig
+    { .boxId = BOX_USER1,       .permanentId = 40, .boxName = "USER1" }, // may be overridden
     { .boxId = BOX_USER2,       .permanentId = 41, .boxName = "USER2" },
     { .boxId = BOX_USER3,       .permanentId = 42, .boxName = "USER3" },
     { .boxId = BOX_USER4,       .permanentId = 43, .boxName = "USER4" },
@@ -101,7 +101,7 @@ const std::array<MSP_Box::msp_box_t, MSP_Box::BOX_COUNT> MSP_Box::boxes = {{
     { .boxId = BOX_LAP_TIMER_RESET, .permanentId = 54, .boxName = "LAP TIMER RESET" },
 }};
 
-const MSP_Box::msp_box_t* MSP_Box::findBoxByBoxId(boxId_e boxId)
+const MSP_Box::msp_box_t* MSP_Box::findBoxByBoxId(box_id_e boxId)
 {
     for (const msp_box_t& box : boxes) {
         // cppcheck-suppress useStlAlgorithm
@@ -123,7 +123,7 @@ const MSP_Box::msp_box_t* MSP_Box::findBoxByPermanentId(uint8_t permanentId)
     return nullptr;
 }
 
-bool MSP_Box::getActiveBoxId(boxId_e boxId) const
+bool MSP_Box::getActiveBoxId(box_id_e boxId) const
 {
     return _activeBoxIds[boxId];
 }
@@ -169,9 +169,9 @@ void MSP_Box::serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
     for (size_t id = 0; id < BOX_COUNT; ++id) {
-        if (getActiveBoxId(static_cast<boxId_e>(id))) {
+        if (getActiveBoxId(static_cast<box_id_e>(id))) {
             if (boxIdx >= pageStart && boxIdx < pageEnd) {
-                if (serializeBoxName(dst, findBoxByBoxId( static_cast<boxId_e>(id)) ) < 0) {
+                if (serializeBoxName(dst, findBoxByBoxId( static_cast<box_id_e>(id)) ) < 0) {
                     // failed to serialize, abort
                     return;
                 }
@@ -186,9 +186,9 @@ void MSP_Box::serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
     for (size_t id = 0; id < BOX_COUNT; ++id) {
-        if (getActiveBoxId(static_cast<boxId_e>(id))) {
+        if (getActiveBoxId(static_cast<box_id_e>(id))) {
             if (boxIdx >= pageStart && boxIdx < pageEnd) {
-                const msp_box_t* box = findBoxByBoxId( static_cast<boxId_e>(id));
+                const msp_box_t* box = findBoxByBoxId( static_cast<box_id_e>(id));
                 if (box == nullptr || dst.bytesRemaining() < 1) {
                     // failed to serialize, abort
                     return;
@@ -244,7 +244,7 @@ void MSP_Box::init(bool accelerometerAvailable, bool inflightAccCalibrationEnabl
 
     // check that all enabled IDs are in boxes array (check may be skipped when using findBoxById() functions)
     for (size_t boxId = 0;  boxId < BOX_COUNT; ++boxId) {
-        if (ena[boxId] && findBoxByBoxId(static_cast<boxId_e>(boxId)) == nullptr) {
+        if (ena[boxId] && findBoxByBoxId(static_cast<box_id_e>(boxId)) == nullptr) {
             ena.reset(boxId); // this should not happen, but handle it gracefully
         }
     }
