@@ -55,6 +55,7 @@ MSP_Serial::MSP_Serial(MSP_Stream& mspStream, MSP_SerialPortBase& mspSerialPort)
     _mspStream(mspStream),
     _mspSerialPort(mspSerialPort)
 {
+    mspStream.setMSP_Serial(this);
 }
 
 /*!
