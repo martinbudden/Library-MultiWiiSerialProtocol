@@ -18,7 +18,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_SerialBase.h"
+#include "MSP_Serial.h"
 #include "MSP_Task.h"
 
 #include <TimeMicroseconds.h>
@@ -38,7 +38,7 @@
 #endif
 
 
-MSP_Task::MSP_Task(uint32_t taskIntervalMicroseconds, MSP_SerialBase& mspSerial) :
+MSP_Task::MSP_Task(uint32_t taskIntervalMicroseconds, MSP_Serial& mspSerial) :
     TaskBase(taskIntervalMicroseconds),
     _taskIntervalMilliseconds(taskIntervalMicroseconds/1000), // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     _mspSerial(mspSerial)

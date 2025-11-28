@@ -44,21 +44,13 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_SerialBase.h"
+#include "MSP_Serial.h"
 #include "MSP_Stream.h"
 #include <cassert>
 
 
-
-
-MSP_Stream::MSP_Stream(MSP_Base& mspBase, MSP_SerialBase* mspSerialBase) :
-    _mspBase(mspBase),
-    _mspSerialBase(mspSerialBase)
-{
-}
-
 MSP_Stream::MSP_Stream(MSP_Base& mspBase) :
-    MSP_Stream(mspBase, nullptr)
+    _mspBase(mspBase)
 {
 }
 
@@ -406,8 +398,8 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
     }
 
     // Send the frame
-    if (_mspSerialBase) {
-        _mspSerialBase->sendFrame(&ret.hdrBuf[0], ret.hdrLen, ret.dataPtr, ret.dataLen, &ret.crcBuf[0], ret.crcLen);
+    if (_mspSerial) {
+        _mspSerial->sendFrame(&ret.hdrBuf[0], ret.hdrLen, ret.dataPtr, ret.dataLen, &ret.crcBuf[0], ret.crcLen);
     }
     return ret;
 }

@@ -49,9 +49,14 @@
 #include <cstddef>
 #include <cstdint>
 
-class MSP_SerialBase {
+/*!
+Abstract base class that virtualizes the required functions of a serial port
+so that the MSP library does not need to depend on an actual serial port.
+*/
+class MSP_SerialPortBase {
 public:
-    virtual ~MSP_SerialBase() = default;
-    virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen) = 0;
-    virtual void processInput() = 0;
+    virtual bool isDataAvailable() const;
+    virtual uint8_t readByte();
+    virtual size_t availableForWrite() const;
+    virtual size_t write(uint8_t* buf, size_t len);
 };

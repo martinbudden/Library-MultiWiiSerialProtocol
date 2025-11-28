@@ -40,13 +40,13 @@
 #endif
 
 
-MSP_Task* MSP_Task::createTask(MSP_SerialBase& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Task* MSP_Task::createTask(MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
     task_info_t taskInfo {}; // NOLINT(cppcoreguidelines-init-variables) false positive
     return createTask(taskInfo, mspSerial, priority, core, taskIntervalMicroseconds);
 }
 
-MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
     static MSP_Task mspTask(taskIntervalMicroseconds, mspSerial);
 

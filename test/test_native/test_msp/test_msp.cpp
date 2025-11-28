@@ -1,5 +1,5 @@
 #include <MSP_Protocol_Base.h>
-#include <MSP_SerialBase.h>
+#include <MSP_Serial.h>
 #include <MSP_Stream.h>
 
 #include <unity.h>

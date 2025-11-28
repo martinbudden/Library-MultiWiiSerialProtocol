@@ -49,7 +49,8 @@
 #include "MSP_Base.h"
 #include <array>
 
-class MSP_SerialBase;
+class MSP_Serial;
+
 
 class MSP_Stream {
 public:
@@ -129,8 +130,9 @@ public:
 
     enum { MSP_MAX_HEADER_SIZE = 9 };
 public:
-    MSP_Stream(MSP_Base& mspBase, MSP_SerialBase* mspSerialBase);
+    //MSP_Stream(MSP_Base& mspBase, MSP_Serial* mspSerial);
     explicit MSP_Stream(MSP_Base& mspBase);
+    void setMSP_Serial(MSP_Serial* mspSerial) { _mspSerial = mspSerial; }
 
     void setStreamState(streamState_e streamState) { _streamState = streamState; }
 
@@ -162,7 +164,7 @@ public: // made public for testing
     static uint8_t crc8_dvb_s2_update(uint8_t crc, const void *data, uint32_t length) { return crc8_update(crc, data, length, 0xD5); }
 private:
     MSP_Base& _mspBase;
-    MSP_SerialBase* _mspSerialBase;
+    MSP_Serial* _mspSerial {};
     pendingSystemRequest_e _pendingRequest {};
     streamState_e _streamState {};
     packetState_e _packetState {};

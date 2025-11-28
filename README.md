@@ -4,7 +4,7 @@ MultiWii Serial Protocol framework, ported from the Betaflight implementation.
 
 ## License Information
 
-This library is a port (modification) of the Blackbox implementation
+This library is a port (modification) of the MultiWii Serial Protocol implementation
 in Betaflight (which itself was a port of the Cleanflight implementation).
 
 Both Betaflight and Cleanflight are licensed under the GNU GPL
@@ -16,7 +16,7 @@ as per the GNU GPL "keep intact all notices” requirement.
 
 ```mermaid
 classDiagram
-    class MSP_SerialBase {
+    class MSP_Serial {
         virtual int sendFrame() = 0
         virtual void processInput() = 0;
     }
@@ -25,5 +25,5 @@ classDiagram
     class MSP_Stream {
     }
     MSP_Stream *-- MSP_Base
-    MSP_Stream o-- MSP_SerialBase
+    MSP_Stream o-- MSP_Serial
 ```

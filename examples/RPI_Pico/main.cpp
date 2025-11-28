@@ -1,6 +1,6 @@
 #include <Arduino.h>
 #include <MSP_Protocol_Base.h>
-#include <MSP_SerialBase.h>
+#include <MSP_Serial.h>
 #include <MSP_Stream.h>
 #include <SoftwareSerial.h>
 #include <boards/pico.h>
@@ -15,7 +15,7 @@ enum { SERIAL_RX = 11, SERIAL_TX = 12 };
 static MSP_Stream* mspStreamPtr {};
 static MSP_Serial* mspSerialPtr {};
 
-class MSP_Serial : public MSP_SerialBase {
+class MSP_Serial : public MSP_Serial {
 public:
     MSP_Serial(MSP_Stream& mspStream, SoftwareSerial& mspSerial) : _mspStream(mspStream), _mspSerial(mspSerial) {}
     virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen) override;

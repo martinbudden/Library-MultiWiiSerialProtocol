@@ -22,15 +22,15 @@
 
 #include <TaskBase.h>
 
-class MSP_SerialBase;
+class MSP_Serial;
 
 
 class MSP_Task : public TaskBase {
 public:
-    MSP_Task(uint32_t taskIntervalMicroseconds, MSP_SerialBase& mspSerial);
+    MSP_Task(uint32_t taskIntervalMicroseconds, MSP_Serial& mspSerial);
 public:
-    static MSP_Task* createTask(task_info_t& taskInfo, MSP_SerialBase& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds);
-    static MSP_Task* createTask(MSP_SerialBase& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds);
+    static MSP_Task* createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds);
+    static MSP_Task* createTask(MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds);
 private:
     // class is not copyable or moveable
     MSP_Task(const MSP_Task&) = delete;
@@ -44,5 +44,5 @@ private:
     [[noreturn]] void task();
 private:
     uint32_t _taskIntervalMilliseconds;
-    MSP_SerialBase& _mspSerial;
+    MSP_Serial& _mspSerial;
 };
