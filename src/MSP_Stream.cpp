@@ -153,7 +153,7 @@ void MSP_Stream::processReceivedPacketData(uint8_t c) // NOLINT(readability-func
         if (_offset == sizeof(mspHeaderV1_t)) {
             const auto* hdr = reinterpret_cast<mspHeaderV1_t*>(&_inBuf[0]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-init-variables)
             // Check incoming buffer size limit
-            if (hdr->size > MSP_Stream_INBUF_SIZE) {
+            if (hdr->size > MSP_STREAM_INBUF_SIZE) {
                 _packetState = MSP_IDLE;
             }
             else if (hdr->cmd == MSP_Base::V2_FRAME_ID) {
@@ -196,7 +196,7 @@ void MSP_Stream::processReceivedPacketData(uint8_t c) // NOLINT(readability-func
         _checksum2 = crc8_dvb_s2(_checksum2, c);
         if (_offset == (sizeof(mspHeaderV2_t) + sizeof(mspHeaderV1_t))) {
             const mspHeaderV2_t* hdrv2 = reinterpret_cast<mspHeaderV2_t*>(&_inBuf[sizeof(mspHeaderV1_t)]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast,cppcoreguidelines-init-variables)
-            if (hdrv2->size > MSP_Stream_INBUF_SIZE) {
+            if (hdrv2->size > MSP_STREAM_INBUF_SIZE) {
                 _packetState = MSP_IDLE;
             } else {
                 _dataSize = hdrv2->size;
@@ -308,19 +308,24 @@ checksum - XOR of the size, type, and payload bytes.
 
 The checksum of a request (ie a message with no payload) equals the type.
 */
-MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& packet, MSP_Base::version_e mspVersion)
+MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(const MSP_Base::const_packet_t& packet, MSP_Base::version_e mspVersion)
 {
     static constexpr std::array<uint8_t, MSP_Base::VERSION_COUNT> mspMagic = { 'M', 'M', 'X' };
 
-    packet_with_header_t ret;
-    ret.hdrBuf = {
-        '$',
-        mspMagic[mspVersion],
-        packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
-    };
+    packet_with_header_t ret {
+        .hdrBuf = {
+            '$',
+            mspMagic[mspVersion],
+            packet.result == MSP_Base::RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
+        },
+        .crcBuf = { 0, 0 },
+        .dataPtr = packet.payload.ptr(),
+        .dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining()),
 
-    ret.dataPtr = packet.payload.ptr();
-    ret.dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining());
+        .hdrLen = MSP_HEADER_LENGTH,
+        .crcLen = 0,
+        .checksum = 0,
+    };
 
     enum { V1_CHECKSUM_STARTPOS = 3 };
 
@@ -404,24 +409,39 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(MSP_Base::packet_t& pa
     return ret;
 }
 
+MSP_Stream::packet_with_header_t MSP_Stream::serialEncodeMSPv1(uint8_t command, const uint8_t* buf, uint8_t len)
+{
+    MSP_Base::const_packet_t packet = {
+        .payload = StreamBufReader(buf, len),
+        .cmd = command,
+        .result = 0,
+        .flags = 0,
+        .direction = MSP_Base::DIRECTION_REPLY
+    };
+
+    packet.payload.switchToReader(); // change streambuf direction
+    setPacketState(MSP_Stream::MSP_IDLE);
+    return serialEncode(packet, _mspVersion);
+}
+
 /*!
 For test code
 Called when the state machine has assembled a packet into _inBuf.
 */
-MSP_Base::packet_t MSP_Stream::processInbuf()
+MSP_Base::const_packet_t MSP_Stream::processInbuf()
 {
-    MSP_Base::packet_t command = {
-        .payload = StreamBuf(&_inBuf[0], _dataSize),
+    MSP_Base::const_packet_t command = {
+        .payload = StreamBufReader(&_inBuf[0], _dataSize),
         .cmd = static_cast<int16_t>(_cmdMSP),
-        .result = 0,
+        .result = MSP_Base::RESULT_NO_REPLY,
         .flags = _cmdFlags,
         .direction = MSP_Base::DIRECTION_REQUEST
     };
 
     MSP_Base::packet_t reply = {
         .payload = StreamBuf(&_outBuf[0], _outBuf.size()),
-        .cmd = -1,
-        .result = 0,
+        .cmd = -1, // set to command.cmd in processCommand
+        .result = MSP_Base::RESULT_NO_REPLY,
         .flags = 0,
         .direction = MSP_Base::DIRECTION_REPLY
     };
@@ -431,7 +451,14 @@ MSP_Base::packet_t MSP_Stream::processInbuf()
     (void)status;
     reply.payload.switchToReader(); // change streambuf direction
 
-    return reply;
+    const MSP_Base::const_packet_t replyConst = {
+        .payload = StreamBufReader(reply.payload),
+        .cmd = reply.cmd,
+        .result = reply.result,
+        .flags = reply.flags,
+        .direction = reply.direction
+    };
+    return replyConst;
 }
 
 /*!
@@ -441,18 +468,18 @@ pwh is optional parameter for use by test code.
 */
 MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header_t* pwh)
 {
-    MSP_Base::packet_t command = {
-        .payload = StreamBuf(&_inBuf[0], _dataSize),
+    const MSP_Base::const_packet_t command = {
+        .payload = StreamBufReader(&_inBuf[0], _dataSize),
         .cmd = static_cast<int16_t>(_cmdMSP),
-        .result = 0,
+        .result = MSP_Base::RESULT_NO_REPLY,
         .flags = _cmdFlags,
         .direction = MSP_Base::DIRECTION_REQUEST
     };
 
     MSP_Base::packet_t reply = {
         .payload = StreamBuf(&_outBuf[0], _outBuf.size()),
-        .cmd = -1,
-        .result = 0,
+        .cmd = -1, // set to command.cmd by processCommand
+        .result = MSP_Base::RESULT_NO_REPLY,
         .flags = 0,
         .direction = MSP_Base::DIRECTION_REPLY
     };
@@ -463,12 +490,19 @@ MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header
     //(void)mspProcessCommandFn;
     const MSP_Base::result_e status = _mspBase.processCommand(command, reply, _descriptor, &mspPostProcessFn);
 
+    MSP_Base::const_packet_t replyConst = {
+        .payload = StreamBufReader(reply.payload),
+        .cmd = reply.cmd,
+        .result = reply.result,
+        .flags = reply.flags,
+        .direction = reply.direction
+    };
     if (status != MSP_Base::RESULT_NO_REPLY) {
-        reply.payload.switchToReader(); // change streambuf direction
+        replyConst.payload.switchToReader(); // change streambuf direction
         if (pwh) {
-            *pwh = serialEncode(reply, _mspVersion);
+            *pwh = serialEncode(replyConst, _mspVersion);
         } else {
-            serialEncode(reply, _mspVersion);
+            serialEncode(replyConst, _mspVersion);
         }
 
     }
@@ -492,7 +526,7 @@ void MSP_Stream::processReceivedReply()
 }
 
 /*!
-pwh is optional parameter for use by test code.
+pwh is optional return value for use by test code.
 */
 bool MSP_Stream::putChar(uint8_t c, packet_with_header_t* pwh)
 {

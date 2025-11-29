@@ -95,14 +95,15 @@ public:
         MSP_PENDING_CLI,
         MSP_PENDING_BOOTLOADER_FLASH,
     };
-    enum { MSP_Stream_INBUF_SIZE = 192 };
-    enum { MSP_Stream_OUTBUF_SIZE_MIN = 512 }; // As of 2021/08/10 MSP_BOXNAMES generates a 307 byte response for page 1. There has been overflow issues with 320 byte buffer.
+    enum { MSP_HEADER_LENGTH = 3 };
+    enum { MSP_STREAM_INBUF_SIZE = 192 };
+    enum { MSP_STREAM_OUTBUF_SIZE_MIN = 512 }; // As of 2021/08/10 MSP_BOXNAMES generates a 307 byte response for page 1. There has been overflow issues with 320 byte buffer.
 #ifdef USE_FLASHFS
-    enum { MSP_Stream_DATAFLASH_BUFFER_SIZE = 4096 };
-    enum { MSP_Stream_DATAFLASH_INFO_SIZE = 16 };
-    enum { MSP_Stream_OUTBUF_SIZE = MSP_Stream_DATAFLASH_BUFFER_SIZE + MSP_Stream_DATAFLASH_INFO_SIZE };
+    enum { MSP_STREAM_DATAFLASH_BUFFER_SIZE = 4096 };
+    enum { MSP_STREAM_DATAFLASH_INFO_SIZE = 16 };
+    enum { MSP_STREAM_OUTBUF_SIZE = MSP_STREAM_DATAFLASH_BUFFER_SIZE + MSP_STREAM_DATAFLASH_INFO_SIZE };
 #else
-    enum { MSP_Stream_OUTBUF_SIZE = MSP_Stream_OUTBUF_SIZE_MIN }; // As of 2021/08/10 MSP_BOXNAMES generates a 307 byte response for page 1.
+    enum { MSP_STREAM_OUTBUF_SIZE = MSP_STREAM_OUTBUF_SIZE_MIN }; // As of 2021/08/10 MSP_BOXNAMES generates a 307 byte response for page 1.
 #endif
 #pragma pack(push, 1)
     struct  mspHeaderV1_t {
@@ -121,7 +122,7 @@ public:
     struct packet_with_header_t {
         std::array<uint8_t, 16> hdrBuf;
         std::array<uint8_t, 2> crcBuf;
-        uint8_t* dataPtr;
+        const uint8_t* dataPtr;
         uint16_t dataLen;
         uint16_t hdrLen = 3;
         uint16_t crcLen = 0;
@@ -145,12 +146,13 @@ public:
     MSP_Base::postProcessFnPtr processReceivedCommand(packet_with_header_t* pwh);
     void processReceivedReply();
     void processPendingRequest();
-    packet_with_header_t serialEncode(MSP_Base::packet_t& packet, MSP_Base::version_e mspVersion);
+    packet_with_header_t serialEncode(const MSP_Base::const_packet_t& packet, MSP_Base::version_e mspVersion);
+    MSP_Stream::packet_with_header_t serialEncodeMSPv1(uint8_t command, const uint8_t* buf, uint8_t len);
     //bool putChar(uint8_t c, MSP_Base::processCommandFnPtr processCommandFn, MSP_Base::processReplyFnPtr processReplyFn, packet_with_header_t& pwh);
     bool putChar(uint8_t c, packet_with_header_t* pwh);
 
 public: // for testing
-    MSP_Base::packet_t processInbuf();
+    MSP_Base::const_packet_t processInbuf();
     streamState_e getStreamState() const { return _streamState; }
     uint16_t getDataSize() const { return _dataSize; }
     uint8_t getInbuf(size_t index) { return _inBuf[index]; }
@@ -177,6 +179,6 @@ private:
     uint8_t _cmdFlags {};
     uint8_t _checksum1 {};
     uint8_t _checksum2 {};
-    std::array<uint8_t, MSP_Stream_INBUF_SIZE> _inBuf {};
-    std::array<uint8_t, MSP_Stream_OUTBUF_SIZE> _outBuf {};
+    std::array<uint8_t, MSP_STREAM_INBUF_SIZE> _inBuf {};
+    std::array<uint8_t, MSP_STREAM_OUTBUF_SIZE> _outBuf {};
 };

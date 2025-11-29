@@ -15,7 +15,7 @@ class MSP_Test : public MSP_Base {
 public:
     enum { MSP_SET_NAME = 11 };
 public:
-    virtual result_e processInCommand(int16_t cmdMSP, StreamBuf& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
+    virtual result_e processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
 public:
     std::array<uint8_t, 8> _name;
 };
@@ -23,7 +23,7 @@ public:
 /*
 MSP_SET_* commands handled in processInCommand
 */
-MSP_Base::result_e MSP_Test::processInCommand(int16_t cmdMSP, StreamBuf& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Test::processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)srcDesc;
     (void)postProcessFn;
@@ -177,14 +177,41 @@ void test_msp_set_name_loop()
     TEST_ASSERT_EQUAL(11, pwh.checksum);
     TEST_ASSERT_EQUAL(0, pwh.dataLen);
 
-    TEST_ASSERT_EQUAL(msp._name[0], 'M');
-    TEST_ASSERT_EQUAL(msp._name[1], 'y');
-    TEST_ASSERT_EQUAL(msp._name[2], 'N');
-    TEST_ASSERT_EQUAL(msp._name[3], 'a');
-    TEST_ASSERT_EQUAL(msp._name[4], 'm');
-    TEST_ASSERT_EQUAL(msp._name[5], 'e');
-    TEST_ASSERT_EQUAL(msp._name[6], 0);
-    TEST_ASSERT_EQUAL(msp._name[7], 0xFF);
+    TEST_ASSERT_EQUAL('M', msp._name[0]);
+    TEST_ASSERT_EQUAL('y', msp._name[1]);
+    TEST_ASSERT_EQUAL('N', msp._name[2]);
+    TEST_ASSERT_EQUAL('a', msp._name[3]);
+    TEST_ASSERT_EQUAL('m', msp._name[4]);
+    TEST_ASSERT_EQUAL('e', msp._name[5]);
+    TEST_ASSERT_EQUAL(0, msp._name[6]);
+    TEST_ASSERT_EQUAL(0xFF, msp._name[7]);
+}
+
+void test_msp_set_name_serial_encode_v1()
+{
+    static MSP_Test msp;
+    static MSP_Stream mspStream(msp);
+
+    const std::array<uint8_t, 6> buf = {
+        'M', 'y', 'N', 'a', 'm', 'e',
+    };
+    TEST_ASSERT_EQUAL(6, buf.size());
+
+    const MSP_Stream::packet_with_header_t pwh = mspStream.serialEncodeMSPv1(MSP_Test::MSP_SET_NAME, &buf[0], buf.size());
+
+    TEST_ASSERT_EQUAL('$', pwh.hdrBuf[0]);
+    TEST_ASSERT_EQUAL('M', pwh.hdrBuf[1]);
+    TEST_ASSERT_EQUAL('>', pwh.hdrBuf[2]); // '>' for success '!' for error
+    TEST_ASSERT_EQUAL(5, pwh.hdrLen);
+    TEST_ASSERT_EQUAL(11, pwh.checksum);
+    TEST_ASSERT_EQUAL(0, pwh.dataLen);
+
+    TEST_ASSERT_EQUAL('M', pwh.dataPtr[0]);
+    TEST_ASSERT_EQUAL('y', pwh.dataPtr[1]);
+    TEST_ASSERT_EQUAL('N', pwh.dataPtr[2]);
+    TEST_ASSERT_EQUAL('a', pwh.dataPtr[3]);
+    TEST_ASSERT_EQUAL('m', pwh.dataPtr[4]);
+    TEST_ASSERT_EQUAL('e', pwh.dataPtr[5]);
 }
 // NOLINTEND(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-explicit-virtual-functions,cppcoreguidelines-pro-bounds-pointer-arithmetic,hicpp-use-override,misc-const-correctness,misc-non-private-member-variables-in-classes,modernize-use-override,readability-magic-numbers,readability-redundant-access-specifiers)
 
@@ -194,6 +221,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 
     RUN_TEST(test_msp_set_name);
     RUN_TEST(test_msp_set_name_loop);
+    RUN_TEST(test_msp_set_name_serial_encode_v1);
 
     UNITY_END();
 }

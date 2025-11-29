@@ -46,7 +46,7 @@
 
 #pragma once
 
-#include <StreamBuf.h>
+#include <StreamBufReader.h>
 
 struct serialPort_t;
 
@@ -126,10 +126,17 @@ public:
         StreamBuf payload;  // payload only, ie no header or crc
         int16_t cmd;
         int16_t result;
-        uint8_t flags;      // MSPv2 flags byte. It looks like unused (yet?).
-        uint8_t direction;  // It also looks like unused and might be deleted.
+        uint8_t flags;      // MSPv2 flags byte
+        uint8_t direction;  // Currently unused
     };
 
+    struct const_packet_t {
+        StreamBufReader payload;  // payload only, ie no header or crc
+        int16_t cmd;
+        int16_t result;
+        uint8_t flags;      // MSPv2 flags byte
+        uint8_t direction;  // Currently unused
+    };
     typedef int descriptor_t;
 
 public:
@@ -142,16 +149,16 @@ public:
 
     virtual void rebootFn(serialPort_t* serialPort);
 
-    virtual result_e setPassthroughCommand(StreamBuf& dst, StreamBuf& src, postProcessFnPtr* postProcessFn);
+    virtual result_e setPassthroughCommand(StreamBuf& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
 
     virtual result_e processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
-    virtual result_e processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBuf& src);
+    virtual result_e processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
 
-    virtual result_e processInCommand(int16_t cmdMSP, StreamBuf& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual result_e processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 
     virtual void processReply(const packet_t& reply);
 
-    virtual result_e processCommand(packet_t& cmd, packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual result_e processCommand(const const_packet_t& cmd, packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 protected:
     uint8_t _passthroughMode {};
     uint8_t _passthroughArgument {};

@@ -59,7 +59,7 @@ void MSP_Base::rebootFn(serialPort_t* serialPort)
     (void)serialPort;
 }
 
-MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBuf& dst, StreamBuf& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBuf& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)postProcessFn;
 
@@ -139,13 +139,13 @@ MSP_Base::result_e MSP_Base::processOutCommand(int16_t cmdMSP, StreamBuf& dst, d
     return RESULT_ACK;
 }
 
-MSP_Base::result_e MSP_Base::processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBuf& src) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)src;
     return processOutCommand(cmdMSP, dst, srcDesc, postProcessFn);
 }
 
-MSP_Base::result_e MSP_Base::processInCommand(int16_t cmdMSP, StreamBuf& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)cmdMSP;
     (void)src;
@@ -156,10 +156,10 @@ MSP_Base::result_e MSP_Base::processInCommand(int16_t cmdMSP, StreamBuf& src, de
 /*
 Returns RESULT_ACK, RESULT_ERROR or RESULT_NO_REPLY
 */
-MSP_Base::result_e MSP_Base::processCommand(packet_t& cmd, packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
+MSP_Base::result_e MSP_Base::processCommand(const const_packet_t& cmd, packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
 {
     StreamBuf& dst = reply.payload;
-    StreamBuf& src = cmd.payload;
+    StreamBufReader src(cmd.payload);
     const int16_t cmdMSP = cmd.cmd; // NOLINT(cppcoreguidelines-init-variables) false positive
     // initialize reply by default
     reply.cmd = cmd.cmd;

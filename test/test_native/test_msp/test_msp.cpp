@@ -92,7 +92,7 @@ void test_get_msp_base_api_version()
     TEST_ASSERT_EQUAL(MSP_Stream::MSP_COMMAND_RECEIVED, mspStream.getPacketState());
     TEST_ASSERT_EQUAL(3, mspStream.getCheckSum1());
 
-    MSP_Base::packet_t reply = mspStream.processInbuf();
+    MSP_Base::const_packet_t reply = mspStream.processInbuf();
 
     TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION, reply.cmd);
     const uint8_t b0 = reply.payload.readU8();
