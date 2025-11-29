@@ -15,15 +15,15 @@ class MSP_Test : public MSP_Base {
 public:
     enum { MSP_SET_NAME = 11 };
 public:
-    virtual result_e processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
+    virtual result_e processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
 public:
     std::array<uint8_t, 8> _name;
 };
 
 /*
-MSP_SET_* commands handled in processInCommand
+MSP_SET_* commands handled in processSetCommand
 */
-MSP_Base::result_e MSP_Test::processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Test::processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)srcDesc;
     (void)postProcessFn;

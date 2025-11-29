@@ -538,7 +538,7 @@ bool MSP_Stream::putChar(uint8_t c, packet_with_header_t* pwh)
     if (_packetState == MSP_COMMAND_RECEIVED) {
         ret = true;
         if (_packetType == MSP_PACKET_COMMAND) {
-            processReceivedCommand(pwh); // eventually calls processOutCommand or processInCommand
+            processReceivedCommand(pwh); // eventually calls processWriteCommand or processReadCommand
         } else if (_packetType == MSP_PACKET_REPLY) {
             processReceivedReply(); // by default does nothing
         }

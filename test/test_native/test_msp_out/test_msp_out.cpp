@@ -15,10 +15,10 @@ class MSP_Test : public MSP_Base {
 public:
     enum { MSP_ATTITUDE = 108 };
 public:
-    virtual result_e processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
+    virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
 };
 
-MSP_Base::result_e MSP_Test::processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
+MSP_Base::result_e MSP_Test::processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
 {
     (void)srcDesc;
     (void)postProcessFn;
@@ -128,7 +128,7 @@ void test_msp_out()
     std::array<uint8_t, 128> buf;
     StreamBuf sbuf(&buf[0], sizeof(buf)); // NOLINT(cppcoreguidelines-init-variables)
 
-    msp.processOutCommand(MSP_BASE_API_VERSION, sbuf, 0, nullptr);
+    msp.processGetCommand(MSP_BASE_API_VERSION, sbuf, 0, nullptr);
     TEST_ASSERT_EQUAL(sizeof(buf) - 3, sbuf.bytesRemaining());
     sbuf.switchToReader();
     TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, sbuf.readU8());

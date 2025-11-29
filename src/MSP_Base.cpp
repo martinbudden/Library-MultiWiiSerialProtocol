@@ -122,7 +122,7 @@ MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBuf& dst, StreamBufRea
     return RESULT_ACK;
 }
 
-MSP_Base::result_e MSP_Base::processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)srcDesc;
     (void)postProcessFn;
@@ -139,13 +139,13 @@ MSP_Base::result_e MSP_Base::processOutCommand(int16_t cmdMSP, StreamBuf& dst, d
     return RESULT_ACK;
 }
 
-MSP_Base::result_e MSP_Base::processOutCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)src;
-    return processOutCommand(cmdMSP, dst, srcDesc, postProcessFn);
+    return processGetCommand(cmdMSP, dst, srcDesc, postProcessFn);
 }
 
-MSP_Base::result_e MSP_Base::processInCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)cmdMSP;
     (void)src;
@@ -164,7 +164,7 @@ MSP_Base::result_e MSP_Base::processCommand(const const_packet_t& cmd, packet_t&
     // initialize reply by default
     reply.cmd = cmd.cmd;
 
-    MSP_Base::result_e ret = processOutCommand(cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
+    MSP_Base::result_e ret = processGetCommand(cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
     if (ret == RESULT_CMD_UNKNOWN) {
         if (cmdMSP == MSP_BASE_SET_PASSTHROUGH) {
             ret = setPassthroughCommand(dst, src, postProcessFn);
@@ -173,7 +173,7 @@ MSP_Base::result_e MSP_Base::processCommand(const const_packet_t& cmd, packet_t&
             ret = mspFcDataFlashReadCommand(dst, src);
 #endif
         } else {
-            ret = processInCommand(cmdMSP, src, srcDesc, postProcessFn); // chains to processInCommand
+            ret = processSetCommand(cmdMSP, src, srcDesc, postProcessFn); // chains to processReadCommand
         }
     }
     reply.result = ret;
