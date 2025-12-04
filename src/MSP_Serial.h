@@ -59,10 +59,9 @@ public:
     virtual ~MSP_Serial() = default;
     MSP_Serial(MSP_Stream& mspStream, MSP_SerialPortBase& mspSerialPort);
 
-    virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen);
+    virtual size_t sendFrame(const uint8_t* headerr, size_t headerLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen);
     virtual void processInput();
 private:
     MSP_Stream& _mspStream;
     MSP_SerialPortBase& _mspSerialPort;
-    std::array<uint8_t, 256> _buffer {};//!!TODO - get rid of this
 };

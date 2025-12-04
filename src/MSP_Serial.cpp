@@ -50,6 +50,35 @@
 
 #include <StreamBuf.h>
 
+void yield();
+
+
+#if defined(FRAMEWORK_USE_FREERTOS)
+#if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
+#include <freertos/FreeRTOS.h>
+#include <freertos/FreeRTOSConfig.h>
+#include <freertos/task.h>
+#else
+#if defined(FRAMEWORK_ARDUINO_STM32)
+#include <STM32FreeRTOS.h>
+#endif
+#include <FreeRTOS.h>
+#include <FreeRTOSConfig.h>
+#include <task.h>
+#endif
+
+void yield() { taskYIELD(); }
+
+#else
+
+#if defined(FRAMEWORK_RPI_PICO)
+#include <pico/time.h>
+void yield() { sleep_ms(1); }
+#else
+void yield() {}
+#endif
+#endif
+
 
 MSP_Serial::MSP_Serial(MSP_Stream& mspStream, MSP_SerialPortBase& mspSerialPort) :
     _mspStream(mspStream),
@@ -72,9 +101,9 @@ void MSP_Serial::processInput()
 /*!
 Called from  MSP_Stream::serialEncode() which is called from MSP_Stream::processReceivedCommand() which is called from MSP_Stream::putChar()
 */
-size_t MSP_Serial::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen)
+size_t MSP_Serial::sendFrame(const uint8_t* header, size_t headerLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen)
 {
-    const size_t totalFrameLength = hdrLen + dataLen + crcLen;
+    const size_t totalFrameLength = headerLen + dataLen + crcLen;
 
     // We are allowed to send out the response if
     //  a) TX buffer is completely empty (we are talking to well-behaving party that follows request-response scheduling;
@@ -87,21 +116,29 @@ size_t MSP_Serial::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* d
     // buffer empty if Serial.availableForWrite() >= SERIAL_TX_BUFFER_SIZE - 1
     // if (totalFrameLength <= Serial.availableForWrite())
 
-    StreamBuf sbuf(&_buffer[0], sizeof(_buffer));
 
-    // copy the frame into a StreamBuf
-    sbuf.writeData(hdr, hdrLen);
-    sbuf.writeData(data, dataLen);
-    sbuf.writeData(crc, crcLen);
-    sbuf.switchToReader();
+    // write the header
+    while (_mspSerialPort.availableForWrite() < headerLen) {
+        yield();
+    }
+    _mspSerialPort.write(header, headerLen);
 
+    // write the data
+    
+    StreamBufReader sbuf(data, dataLen);
     while (sbuf.bytesRemaining() > 0) {
         const size_t available = _mspSerialPort.availableForWrite();
         const size_t writeLen = std::min(available, sbuf.bytesRemaining());
         _mspSerialPort.write(sbuf.ptr(), writeLen);
         sbuf.advance(writeLen);
-        //!!delayMs(1);
+        yield();
     }
+
+    // write the crc
+    while (_mspSerialPort.availableForWrite() < crcLen) {
+        yield();
+    }
+    _mspSerialPort.write(crc, crcLen);
 
     return totalFrameLength;
 }

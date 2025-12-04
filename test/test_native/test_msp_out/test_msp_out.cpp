@@ -57,7 +57,7 @@ public:
     bool isDataAvailable() const override { return true; }
     uint8_t readByte() override { return 0; }
     size_t availableForWrite() const override { return 100; }
-    size_t write(uint8_t* buf, size_t len) override { (void)buf; return len; }
+    size_t write(const uint8_t* buf, size_t len) override { (void)buf; return len; }
 };
 
 class MSP_SerialTest : public MSP_Serial {

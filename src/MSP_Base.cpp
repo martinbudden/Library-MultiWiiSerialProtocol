@@ -59,7 +59,7 @@ void MSP_Base::rebootFn(serialPort_t* serialPort)
     (void)serialPort;
 }
 
-MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBuf& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBuf& dst, const StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)postProcessFn;
 
@@ -139,13 +139,13 @@ MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBuf& dst, d
     return RESULT_ACK;
 }
 
-MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, const StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)src;
     return processGetCommand(cmdMSP, dst, srcDesc, postProcessFn);
 }
 
-MSP_Base::result_e MSP_Base::processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+MSP_Base::result_e MSP_Base::processSetCommand(int16_t cmdMSP, const StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)cmdMSP;
     (void)src;
@@ -159,7 +159,7 @@ Returns RESULT_ACK, RESULT_ERROR or RESULT_NO_REPLY
 MSP_Base::result_e MSP_Base::processCommand(const const_packet_t& cmd, packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
 {
     StreamBuf& dst = reply.payload;
-    StreamBufReader src(cmd.payload);
+    const StreamBufReader src(cmd.payload);
     const int16_t cmdMSP = cmd.cmd; // NOLINT(cppcoreguidelines-init-variables) false positive
     // initialize reply by default
     reply.cmd = cmd.cmd;

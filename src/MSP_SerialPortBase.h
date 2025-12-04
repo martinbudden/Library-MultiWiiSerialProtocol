@@ -58,5 +58,5 @@ public:
     virtual bool isDataAvailable() const;
     virtual uint8_t readByte();
     virtual size_t availableForWrite() const;
-    virtual size_t write(uint8_t* buf, size_t len);
+    virtual size_t write(const uint8_t* buf, size_t len);
 };

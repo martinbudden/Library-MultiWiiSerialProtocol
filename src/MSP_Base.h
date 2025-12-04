@@ -149,12 +149,12 @@ public:
 
     virtual void rebootFn(serialPort_t* serialPort);
 
-    virtual result_e setPassthroughCommand(StreamBuf& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
+    virtual result_e setPassthroughCommand(StreamBuf& dst, const StreamBufReader& src, postProcessFnPtr* postProcessFn);
 
     virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
-    virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
+    virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, const StreamBufReader& src);
 
-    virtual result_e processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual result_e processSetCommand(int16_t cmdMSP, const StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 
     virtual void processReply(const packet_t& reply);
 
