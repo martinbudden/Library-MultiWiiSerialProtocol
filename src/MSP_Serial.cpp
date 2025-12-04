@@ -50,7 +50,7 @@
 
 #include <StreamBuf.h>
 
-void yield();
+static void yield();
 
 
 #if defined(FRAMEWORK_USE_FREERTOS)
@@ -73,9 +73,9 @@ void yield() { taskYIELD(); }
 
 #if defined(FRAMEWORK_RPI_PICO)
 #include <pico/time.h>
-void yield() { sleep_ms(1); }
+static void yield() { sleep_ms(1); }
 #else
-void yield() {}
+static void yield() {}
 #endif
 #endif
 
