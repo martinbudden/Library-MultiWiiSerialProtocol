@@ -72,7 +72,14 @@ Task function for the MSP. Sets up and runs the task loop() function.
     _previousWakeTimeTicks = xTaskGetTickCount();
     while (true) {
         // delay until the end of the next taskIntervalTicks
-        vTaskDelayUntil(&_previousWakeTimeTicks, taskIntervalTicks);
+#if (tskKERNEL_VERSION_MAJOR > 10) || ((tskKERNEL_VERSION_MAJOR == 10) && (tskKERNEL_VERSION_MINOR >= 5))
+            const BaseType_t wasDelayed = xTaskDelayUntil(&_previousWakeTimeTicks, taskIntervalTicks);
+            if (wasDelayed) {
+                _wasDelayed = true;
+            }
+#else
+            vTaskDelayUntil(&_previousWakeTimeTicks, taskIntervalTicks);
+#endif
         // calculate _tickCountDelta to get actual deltaT value, since we may have been delayed for more than taskIntervalTicks
         const TickType_t tickCount = xTaskGetTickCount();
         _tickCountDelta = tickCount - _tickCountPrevious;
