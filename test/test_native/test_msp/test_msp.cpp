@@ -16,14 +16,14 @@ void test_msp_box()
 {
     enum { BOX_HORIZON_PERMANENT = 2 };
 
-    const MSP_Box::msp_box_t* box = MSP_Box::findBoxByPermanentId(BOX_HORIZON_PERMANENT);
+    const MSP_Box::box_t* box = MSP_Box::findBoxByPermanentId(BOX_HORIZON_PERMANENT);
     TEST_ASSERT_FALSE(box == nullptr);
-    TEST_ASSERT_EQUAL(MSP_Box::BOX_HORIZON, box->boxId);
+    TEST_ASSERT_EQUAL(MSP_Box::BOX_HORIZON, box->id);
 
     enum { BOX_GPS_RESCUE_PERMANENT = 46 };
     box = MSP_Box::findBoxByPermanentId(BOX_GPS_RESCUE_PERMANENT);
     TEST_ASSERT_FALSE(box == nullptr);
-    TEST_ASSERT_EQUAL(MSP_Box::BOX_GPS_RESCUE, box->boxId);
+    TEST_ASSERT_EQUAL(MSP_Box::BOX_GPS_RESCUE, box->id);
 }
 
 void test_msp_state()

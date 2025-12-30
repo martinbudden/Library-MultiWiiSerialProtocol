@@ -52,69 +52,69 @@
 //!!std::bitset<MSP_Box::BOX_COUNT> rcModeActivationMask {};
 
 // permanent IDs must uniquely identify BOX meaning, DO NOT REUSE THEM!
-const std::array<MSP_Box::msp_box_t, MSP_Box::BOX_COUNT> MSP_Box::boxes = {{
-    { .boxId = BOX_ARM,         .permanentId = 0, .boxName = "ARM" },
-    { .boxId = BOX_ANGLE,       .permanentId = 1, .boxName = "ANGLE" },
-    { .boxId = BOX_HORIZON,     .permanentId = 2, .boxName = "HORIZON" },
-    { .boxId = BOX_ALTHOLD,     .permanentId = 3, .boxName = "ALTHOLD" },
-    { .boxId = BOX_ANTIGRAVITY, .permanentId = 4, .boxName = "ANTI GRAVITY" },
-    { .boxId = BOX_MAG,         .permanentId = 5, .boxName = "MAG" },
-    { .boxId = BOX_HEADFREE,    .permanentId = 6, .boxName = "HEADFREE" },
-    { .boxId = BOX_HEADADJ,     .permanentId = 7, .boxName = "HEADADJ" },
-    { .boxId = BOX_CAMSTAB,     .permanentId = 8, .boxName = "CAMSTAB" },
-    { .boxId = BOX_PASSTHRU,    .permanentId = 12, .boxName = "PASSTHRU" },
-    { .boxId = BOX_BEEPER_ON,   .permanentId = 13, .boxName = "BEEPER" },
-    { .boxId = BOX_LED_LOW,     .permanentId = 15, .boxName = "LEDLOW" },
-    { .boxId = BOX_CALIBRATE,   .permanentId = 17, .boxName = "CALIBRATE" },
-    { .boxId = BOX_OSD,         .permanentId = 19, .boxName = "OSD DISABLE" },
-    { .boxId = BOX_TELEMETRY,   .permanentId = 20, .boxName = "TELEMETRY" },
-    { .boxId = BOX_SERVO1,      .permanentId = 23, .boxName = "SERVO1" },
-    { .boxId = BOX_SERVO2,      .permanentId = 24, .boxName = "SERVO2" },
-    { .boxId = BOX_SERVO3,      .permanentId = 25, .boxName = "SERVO3" },
-    { .boxId = BOX_BLACKBOX,    .permanentId = 26, .boxName = "BLACKBOX_" },
-    { .boxId = BOX_FAILSAFE,    .permanentId = 27, .boxName = "FAILSAFE" },
-    { .boxId = BOX_AIRMODE,     .permanentId = 28, .boxName = "AIR MODE" },
-    { .boxId = BOX_3D,          .permanentId = 29, .boxName = "3D DISABLE / SWITCH" },
-    { .boxId = BOX_FPV_ANGLE_MIX, .permanentId = 30, .boxName = "FPV ANGLE MIX" },
-    { .boxId = BOX_BLACKBOX_ERASE, .permanentId = 31, .boxName = "BLACKBOX_ ERASE" },
-    { .boxId = BOX_CAMERA1,     .permanentId = 32, .boxName = "CAMERA CONTROL 1" },
-    { .boxId = BOX_CAMERA2,     .permanentId = 33, .boxName = "CAMERA CONTROL 2" },
-    { .boxId = BOX_CAMERA3,     .permanentId = 34, .boxName = "CAMERA CONTROL 3" },
-    { .boxId = BOX_CRASH_FLIP,  .permanentId = 35, .boxName = "FLIP OVER AFTER CRASH" },
-    { .boxId = BOX_PREARM,      .permanentId = 36, .boxName = "PREARM" },
-    { .boxId = BOX_BEEP_GPS_COUNT, .permanentId = 37, .boxName = "GPS BEEP SATELLITE COUNT" },
-    { .boxId = BOX_VTX_PIT_MODE, .permanentId = 39, .boxName = "VTX PIT MODE" },
-    { .boxId = BOX_USER1,       .permanentId = 40, .boxName = "USER1" }, // may be overridden
-    { .boxId = BOX_USER2,       .permanentId = 41, .boxName = "USER2" },
-    { .boxId = BOX_USER3,       .permanentId = 42, .boxName = "USER3" },
-    { .boxId = BOX_USER4,       .permanentId = 43, .boxName = "USER4" },
-    { .boxId = BOX_PID_AUDIO,   .permanentId = 44, .boxName = "PID AUDIO" },
-    { .boxId = BOX_PARALYZE,    .permanentId = 45, .boxName = "PARALYZE" },
-    { .boxId = BOX_GPS_RESCUE,  .permanentId = 46, .boxName = "GPS RESCUE" },
-    { .boxId = BOX_ACRO_TRAINER, .permanentId = 47, .boxName = "ACRO TRAINER" },
-    { .boxId = BOX_VTX_CONTROL_DISABLE, .permanentId = 48, .boxName = "VTX CONTROL DISABLE" },
-    { .boxId = BOX_LAUNCH_CONTROL, .permanentId = 49, .boxName = "LAUNCH CONTROL" },
-    { .boxId = BOX_MSP_OVERRIDE, .permanentId = 50, .boxName = "MSP OVERRIDE" },
-    { .boxId = BOX_STICK_COMMAND_DISABLE, .permanentId = 51, .boxName = "STICK COMMANDS DISABLE" },
-    { .boxId = BOX_BEEPER_MUTE, .permanentId = 52, .boxName = "BEEPER MUTE" },
-    { .boxId = BOX_READY,       .permanentId = 53, .boxName = "READY" },
-    { .boxId = BOX_LAP_TIMER_RESET, .permanentId = 54, .boxName = "LAP TIMER RESET" },
+const std::array<MSP_Box::box_t, MSP_Box::BOX_COUNT> MSP_Box::boxes = {{
+    { .id = BOX_ARM,         .permanentId = 0, .name = "ARM" },
+    { .id = BOX_ANGLE,       .permanentId = 1, .name = "ANGLE" },
+    { .id = BOX_HORIZON,     .permanentId = 2, .name = "HORIZON" },
+    { .id = BOX_ALTHOLD,     .permanentId = 3, .name = "ALTHOLD" },
+    { .id = BOX_ANTIGRAVITY, .permanentId = 4, .name = "ANTI GRAVITY" },
+    { .id = BOX_MAG,         .permanentId = 5, .name = "MAG" },
+    { .id = BOX_HEADFREE,    .permanentId = 6, .name = "HEADFREE" },
+    { .id = BOX_HEADADJ,     .permanentId = 7, .name = "HEADADJ" },
+    { .id = BOX_CAMSTAB,     .permanentId = 8, .name = "CAMSTAB" },
+    { .id = BOX_PASSTHRU,    .permanentId = 12, .name = "PASSTHRU" },
+    { .id = BOX_BEEPER_ON,   .permanentId = 13, .name = "BEEPER" },
+    { .id = BOX_LED_LOW,     .permanentId = 15, .name = "LEDLOW" },
+    { .id = BOX_CALIBRATE,   .permanentId = 17, .name = "CALIBRATE" },
+    { .id = BOX_OSD,         .permanentId = 19, .name = "OSD DISABLE" },
+    { .id = BOX_TELEMETRY,   .permanentId = 20, .name = "TELEMETRY" },
+    { .id = BOX_SERVO1,      .permanentId = 23, .name = "SERVO1" },
+    { .id = BOX_SERVO2,      .permanentId = 24, .name = "SERVO2" },
+    { .id = BOX_SERVO3,      .permanentId = 25, .name = "SERVO3" },
+    { .id = BOX_BLACKBOX,    .permanentId = 26, .name = "BLACKBOX_" },
+    { .id = BOX_FAILSAFE,    .permanentId = 27, .name = "FAILSAFE" },
+    { .id = BOX_AIRMODE,     .permanentId = 28, .name = "AIR MODE" },
+    { .id = BOX_3D,          .permanentId = 29, .name = "3D DISABLE / SWITCH" },
+    { .id = BOX_FPV_ANGLE_MIX, .permanentId = 30, .name = "FPV ANGLE MIX" },
+    { .id = BOX_BLACKBOX_ERASE, .permanentId = 31, .name = "BLACKBOX_ ERASE" },
+    { .id = BOX_CAMERA1,     .permanentId = 32, .name = "CAMERA CONTROL 1" },
+    { .id = BOX_CAMERA2,     .permanentId = 33, .name = "CAMERA CONTROL 2" },
+    { .id = BOX_CAMERA3,     .permanentId = 34, .name = "CAMERA CONTROL 3" },
+    { .id = BOX_CRASH_FLIP,  .permanentId = 35, .name = "FLIP OVER AFTER CRASH" },
+    { .id = BOX_PREARM,      .permanentId = 36, .name = "PREARM" },
+    { .id = BOX_BEEP_GPS_COUNT, .permanentId = 37, .name = "GPS BEEP SATELLITE COUNT" },
+    { .id = BOX_VTX_PIT_MODE, .permanentId = 39, .name = "VTX PIT MODE" },
+    { .id = BOX_USER1,       .permanentId = 40, .name = "USER1" }, // may be overridden
+    { .id = BOX_USER2,       .permanentId = 41, .name = "USER2" },
+    { .id = BOX_USER3,       .permanentId = 42, .name = "USER3" },
+    { .id = BOX_USER4,       .permanentId = 43, .name = "USER4" },
+    { .id = BOX_PID_AUDIO,   .permanentId = 44, .name = "PID AUDIO" },
+    { .id = BOX_PARALYZE,    .permanentId = 45, .name = "PARALYZE" },
+    { .id = BOX_GPS_RESCUE,  .permanentId = 46, .name = "GPS RESCUE" },
+    { .id = BOX_ACRO_TRAINER, .permanentId = 47, .name = "ACRO TRAINER" },
+    { .id = BOX_VTX_CONTROL_DISABLE, .permanentId = 48, .name = "VTX CONTROL DISABLE" },
+    { .id = BOX_LAUNCH_CONTROL, .permanentId = 49, .name = "LAUNCH CONTROL" },
+    { .id = BOX_MSP_OVERRIDE, .permanentId = 50, .name = "MSP OVERRIDE" },
+    { .id = BOX_STICK_COMMAND_DISABLE, .permanentId = 51, .name = "STICK COMMANDS DISABLE" },
+    { .id = BOX_BEEPER_MUTE, .permanentId = 52, .name = "BEEPER MUTE" },
+    { .id = BOX_READY,       .permanentId = 53, .name = "READY" },
+    { .id = BOX_LAP_TIMER_RESET, .permanentId = 54, .name = "LAP TIMER RESET" },
 }};
 
-const MSP_Box::msp_box_t* MSP_Box::findBoxByBoxId(box_id_e boxId)
+const MSP_Box::box_t* MSP_Box::findBoxByBoxId(id_e boxId)
 {
-    for (const msp_box_t& box : boxes) {
+    for (const box_t& box : boxes) {
         // cppcheck-suppress useStlAlgorithm
-        if (box.boxId == boxId) {
+        if (box.id == boxId) {
             return &box;
         }
     }
     return nullptr;
 }
 
-const MSP_Box::msp_box_t* MSP_Box::findBoxByPermanentId(uint8_t permanentId)
+const MSP_Box::box_t* MSP_Box::findBoxByPermanentId(uint8_t permanentId)
 {
-    for (const msp_box_t& box : boxes) {
+    for (const box_t& box : boxes) {
         // cppcheck-suppress useStlAlgorithm
         if (box.permanentId == permanentId) {
             return &box;
@@ -123,12 +123,12 @@ const MSP_Box::msp_box_t* MSP_Box::findBoxByPermanentId(uint8_t permanentId)
     return nullptr;
 }
 
-bool MSP_Box::getActiveBoxId(box_id_e boxId) const
+bool MSP_Box::getActiveBoxId(id_e boxId) const
 {
     return _activeBoxIds[boxId];
 }
 
-int MSP_Box::serializeBoxName(StreamBuf& dst, const msp_box_t* box) // box may be nullptr
+int MSP_Box::serializeBoxName(StreamBuf& dst, const box_t* box) // box may be nullptr
 {
     if (box == nullptr) {
         return -1;
@@ -136,8 +136,8 @@ int MSP_Box::serializeBoxName(StreamBuf& dst, const msp_box_t* box) // box may b
 #if defined(LIBRARY_MULTI_WII_SERIAL_PROTOCOL_USE_CUSTOM_BOX_NAMES)
     const char* name = nullptr;
     size_t len {};
-    if (box->boxId >= BOXUSER1 && box->boxId <= BOXUSER4) {
-        const int n = box->boxId - BOXUSER1;
+    if (box->id >= BOX_USER1 && box->id <= BOX_USER4) {
+        const int n = box->id - BOX_USER1;
         name = modeActivationConfig()->box_user_names[n];
         // possibly there is no '\0' in boxname
         if (*name) {
@@ -147,11 +147,11 @@ int MSP_Box::serializeBoxName(StreamBuf& dst, const msp_box_t* box) // box may b
         }
     }
     if (name == nullptr) {
-        name = box->boxName;
+        name = box->name;
         len = strlen(name);
     }
 #else
-    const char* name = box->boxName;
+    const char* name = box->name;
     size_t len = strlen(name);
 #endif
     if (dst.bytesRemaining() < len + 1) {
@@ -169,7 +169,7 @@ void MSP_Box::serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
     for (size_t id = 0; id < BOX_COUNT; ++id) {
-        const auto boxId = static_cast<box_id_e>(id);
+        const auto boxId = static_cast<id_e>(id);
         if (getActiveBoxId(boxId)) {
             if (boxIndex >= pageStart && boxIndex < pageEnd) {
                 if (serializeBoxName(dst, findBoxByBoxId(boxId)) < 0) {
@@ -187,10 +187,10 @@ void MSP_Box::serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
     for (size_t id = 0; id < BOX_COUNT; ++id) {
-        const auto boxId = static_cast<box_id_e>(id);
+        const auto boxId = static_cast<id_e>(id);
         if (getActiveBoxId(boxId)) {
             if (boxIndex >= pageStart && boxIndex < pageEnd) {
-                const msp_box_t* box = findBoxByBoxId(boxId);
+                const box_t* box = findBoxByBoxId(boxId);
                 if (box == nullptr || dst.bytesRemaining() < 1) {
                     // failed to serialize, abort
                     return;
@@ -245,7 +245,7 @@ void MSP_Box::init(bool accelerometerAvailable, bool inflightAccCalibrationEnabl
 
     // check that all enabled IDs are in boxes array (check may be skipped when using findBoxById() functions)
     for (size_t boxId = 0;  boxId < BOX_COUNT; ++boxId) {
-        if (enabled[boxId] && findBoxByBoxId(static_cast<box_id_e>(boxId)) == nullptr) {
+        if (enabled[boxId] && findBoxByBoxId(static_cast<id_e>(boxId)) == nullptr) {
             enabled.reset(boxId); // this should not happen, but handle it gracefully
         }
     }

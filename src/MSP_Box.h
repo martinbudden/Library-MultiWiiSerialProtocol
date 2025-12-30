@@ -63,15 +63,15 @@ public:
         bool antiGravityEnabled
     );
 public:
-    struct msp_box_t {
-        const uint8_t boxId;
+    struct box_t {
+        const uint8_t id;
         const uint8_t permanentId; // permanent ID used to identify BOX. This ID is unique for one function, DO NOT REUSE IT
-        const char *boxName;       // GUI-readable box name
+        const char *name;       // GUI-readable box name
     };
     // Each page contains at most 32 boxes
     enum { MAX_BOXES_PER_PAGE = 32 };
     enum { PERMANENT_ID_NONE = 255 };
-    enum  box_id_e {
+    enum  id_e {
         // ARM flag
         BOX_ARM = 0,
         // Flight modes
@@ -131,16 +131,16 @@ public:
     };
     typedef std::bitset<BOX_COUNT> bitset_t;
 public:
-    typedef int serializeBoxFn(StreamBuf& dst, const msp_box_t* box);
+    typedef int serializeBoxFn(StreamBuf& dst, const box_t* box);
 public:
-    static const msp_box_t* findBoxByBoxId(box_id_e boxId);
-    static const msp_box_t* findBoxByPermanentId(uint8_t permanentId);
+    static const box_t* findBoxByBoxId(id_e boxId);
+    static const box_t* findBoxByPermanentId(uint8_t permanentId);
 
-    static int serializeBoxName(StreamBuf& dst, const msp_box_t* box);
+    static int serializeBoxName(StreamBuf& dst, const box_t* box);
     void serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const;
     void serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const;
 protected:
-    bool getActiveBoxId(box_id_e boxId) const;
-    std::bitset<BOX_COUNT> _activeBoxIds {};
-    static const std::array<msp_box_t, BOX_COUNT> boxes;
+    bool getActiveBoxId(id_e boxId) const;
+    bitset_t _activeBoxIds {};
+    static const std::array<box_t, BOX_COUNT> boxes;
 };
