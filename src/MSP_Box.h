@@ -89,13 +89,13 @@ public:
 
     // When new flight modes are added, the parameter group version for 'modeActivationConditions' in src/main/fc/rc_modes.c has to be incremented to ensure that the RC modes configuration is reset.
 
-        // RCMODE flags
+        // RC_Mode flags
         BOX_ANTIGRAVITY,
         BOX_HEADADJ,
         BOX_CAMSTAB,
         BOX_BEEPER_ON,
         BOX_LED_LOW,
-        BOX_CALIB,
+        BOX_CALIBRATE,
         BOX_OSD,
         BOX_TELEMETRY,
         BOX_SERVO1,
@@ -129,7 +129,7 @@ public:
         BOX_LAP_TIMER_RESET,
         BOX_COUNT // number of boxes
     };
-
+    typedef std::bitset<BOX_COUNT> bitset_t;
 public:
     typedef int serializeBoxFn(StreamBuf& dst, const msp_box_t* box);
 public:
@@ -142,5 +142,5 @@ public:
 protected:
     bool getActiveBoxId(box_id_e boxId) const;
     std::bitset<BOX_COUNT> _activeBoxIds {};
-    static const std::array<MSP_Box::msp_box_t, MSP_Box::BOX_COUNT> boxes;
+    static const std::array<msp_box_t, BOX_COUNT> boxes;
 };

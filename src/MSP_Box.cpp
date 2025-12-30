@@ -65,7 +65,7 @@ const std::array<MSP_Box::msp_box_t, MSP_Box::BOX_COUNT> MSP_Box::boxes = {{
     { .boxId = BOX_PASSTHRU,    .permanentId = 12, .boxName = "PASSTHRU" },
     { .boxId = BOX_BEEPER_ON,   .permanentId = 13, .boxName = "BEEPER" },
     { .boxId = BOX_LED_LOW,     .permanentId = 15, .boxName = "LEDLOW" },
-    { .boxId = BOX_CALIB,       .permanentId = 17, .boxName = "CALIB" },
+    { .boxId = BOX_CALIBRATE,   .permanentId = 17, .boxName = "CALIBRATE" },
     { .boxId = BOX_OSD,         .permanentId = 19, .boxName = "OSD DISABLE" },
     { .boxId = BOX_TELEMETRY,   .permanentId = 20, .boxName = "TELEMETRY" },
     { .boxId = BOX_SERVO1,      .permanentId = 23, .boxName = "SERVO1" },
@@ -133,7 +133,7 @@ int MSP_Box::serializeBoxName(StreamBuf& dst, const msp_box_t* box) // box may b
     if (box == nullptr) {
         return -1;
     }
-#if defined(USE_CUSTOM_BOX_NAMES)
+#if defined(LIBRARY_MULTI_WII_SERIAL_PROTOCOL_USE_CUSTOM_BOX_NAMES)
     const char* name = nullptr;
     size_t len {};
     if (box->boxId >= BOXUSER1 && box->boxId <= BOXUSER4) {
@@ -165,88 +165,89 @@ int MSP_Box::serializeBoxName(StreamBuf& dst, const msp_box_t* box) // box may b
 
 void MSP_Box::serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const
 {
-    size_t boxIdx = 0;
+    size_t boxIndex = 0;
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
     for (size_t id = 0; id < BOX_COUNT; ++id) {
-        if (getActiveBoxId(static_cast<box_id_e>(id))) {
-            if (boxIdx >= pageStart && boxIdx < pageEnd) {
-                if (serializeBoxName(dst, findBoxByBoxId( static_cast<box_id_e>(id)) ) < 0) {
+        const auto boxId = static_cast<box_id_e>(id);
+        if (getActiveBoxId(boxId)) {
+            if (boxIndex >= pageStart && boxIndex < pageEnd) {
+                if (serializeBoxName(dst, findBoxByBoxId(boxId)) < 0) {
                     // failed to serialize, abort
                     return;
                 }
             }
-        ++boxIdx; // count active boxes
+        ++boxIndex; // count active boxes
         }
     }
 }
 void MSP_Box::serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const
 {
-    size_t boxIdx = 0;
+    size_t boxIndex = 0;
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
     for (size_t id = 0; id < BOX_COUNT; ++id) {
-        if (getActiveBoxId(static_cast<box_id_e>(id))) {
-            if (boxIdx >= pageStart && boxIdx < pageEnd) {
-                const msp_box_t* box = findBoxByBoxId( static_cast<box_id_e>(id));
+        const auto boxId = static_cast<box_id_e>(id);
+        if (getActiveBoxId(boxId)) {
+            if (boxIndex >= pageStart && boxIndex < pageEnd) {
+                const msp_box_t* box = findBoxByBoxId(boxId);
                 if (box == nullptr || dst.bytesRemaining() < 1) {
                     // failed to serialize, abort
                     return;
                 }
                 dst.writeU8(box->permanentId);
             }
-        ++boxIdx; // count active boxes
+        ++boxIndex; // count active boxes
         }
     }
 }
 
 void MSP_Box::init(bool accelerometerAvailable, bool inflightAccCalibrationEnabled, bool mspOverrideEnabled, bool airModeEnabled, bool antiGravityEnabled) // NOLINT(readability-convert-member-functions-to-static) false positive
 {
-    std::bitset<BOX_COUNT> ena {};
+    bitset_t enabled {};
 
-    // macro to enable boxId (BoxidMaskEnable). Reference to ena is hidden, local use only
-    ena.set(BOX_ARM);
-    ena.set(BOX_PREARM);
+    enabled.set(BOX_ARM);
+    enabled.set(BOX_PREARM);
     if (!airModeEnabled) {
-        ena.set(BOX_AIRMODE);
+        enabled.set(BOX_AIRMODE);
     }
 
     if (!antiGravityEnabled) {
-        ena.set(BOX_ANTIGRAVITY);
+        enabled.set(BOX_ANTIGRAVITY);
     }
 
     if (accelerometerAvailable) {
-        ena.set(BOX_ANGLE);
-        ena.set(BOX_HORIZON);
-        ena.set(BOX_ALTHOLD);
-        ena.set(BOX_HEADFREE);
-        ena.set(BOX_HEADADJ);
-        ena.set(BOX_FPV_ANGLE_MIX);
+        enabled.set(BOX_ANGLE);
+        enabled.set(BOX_HORIZON);
+        enabled.set(BOX_ALTHOLD);
+        enabled.set(BOX_HEADFREE);
+        enabled.set(BOX_HEADADJ);
+        enabled.set(BOX_FPV_ANGLE_MIX);
         if (inflightAccCalibrationEnabled) {
-            ena.set(BOX_CALIB);
+            enabled.set(BOX_CALIBRATE);
         }
-        ena.set(BOX_ACRO_TRAINER);
+        enabled.set(BOX_ACRO_TRAINER);
     }
 
-    ena.set(BOX_FAILSAFE);
+    enabled.set(BOX_FAILSAFE);
 
-    ena.set(BOX_BEEPER_ON);
-    ena.set(BOX_BEEPER_MUTE);
+    enabled.set(BOX_BEEPER_ON);
+    enabled.set(BOX_BEEPER_MUTE);
 
-    ena.set(BOX_PARALYZE);
+    enabled.set(BOX_PARALYZE);
 
     if (mspOverrideEnabled) {
-        ena.set(BOX_MSP_OVERRIDE);
+        enabled.set(BOX_MSP_OVERRIDE);
     }
 
-    ena.set(BOX_STICK_COMMAND_DISABLE);
-    ena.set(BOX_READY);
+    enabled.set(BOX_STICK_COMMAND_DISABLE);
+    enabled.set(BOX_READY);
 
     // check that all enabled IDs are in boxes array (check may be skipped when using findBoxById() functions)
     for (size_t boxId = 0;  boxId < BOX_COUNT; ++boxId) {
-        if (ena[boxId] && findBoxByBoxId(static_cast<box_id_e>(boxId)) == nullptr) {
-            ena.reset(boxId); // this should not happen, but handle it gracefully
+        if (enabled[boxId] && findBoxByBoxId(static_cast<box_id_e>(boxId)) == nullptr) {
+            enabled.reset(boxId); // this should not happen, but handle it gracefully
         }
     }
-    _activeBoxIds = ena;
+    _activeBoxIds = enabled;
 }

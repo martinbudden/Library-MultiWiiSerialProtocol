@@ -271,13 +271,13 @@ void MSP_Stream::processPendingRequest()
         //systemResetToBootloader(BOOTLOADER_REQUEST_ROM);
         break;
 
-#if defined(USE_FLASH_BOOT_LOADER)
+#if defined(LIBRARY_MULTI_WII_SERIAL_PROTOCOL_USE_FLASH_BOOT_LOADER)
     case MSP_PENDING_BOOTLOADER_FLASH:
         systemResetToBootloader(BOOTLOADER_REQUEST_FLASH);
         break;
 #endif
 
-#ifdef USE_CLI
+#if defined(LIBRARY_MULTI_WII_SERIAL_PROTOCOL_USE_CLI)
     case MSP_PENDING_CLI:
         _pendingRequest = MSP_PENDING_NONE;
         _streamState = STREAM_CLI_ACTIVE;

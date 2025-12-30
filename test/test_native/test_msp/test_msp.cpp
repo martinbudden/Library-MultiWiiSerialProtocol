@@ -1,3 +1,4 @@
+#include <MSP_Box.h>
 #include <MSP_Protocol_Base.h>
 #include <MSP_Serial.h>
 #include <MSP_Stream.h>
@@ -11,6 +12,20 @@ void tearDown() {
 }
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-explicit-virtual-functions,cppcoreguidelines-pro-bounds-pointer-arithmetic,hicpp-use-override,misc-const-correctness,misc-non-private-member-variables-in-classes,modernize-use-override,readability-magic-numbers,readability-redundant-access-specifiers)
+void test_msp_box()
+{
+    enum { BOX_HORIZON_PERMANENT = 2 };
+
+    const MSP_Box::msp_box_t* box = MSP_Box::findBoxByPermanentId(BOX_HORIZON_PERMANENT);
+    TEST_ASSERT_FALSE(box == nullptr);
+    TEST_ASSERT_EQUAL(MSP_Box::BOX_HORIZON, box->boxId);
+
+    enum { BOX_GPS_RESCUE_PERMANENT = 46 };
+    box = MSP_Box::findBoxByPermanentId(BOX_GPS_RESCUE_PERMANENT);
+    TEST_ASSERT_FALSE(box == nullptr);
+    TEST_ASSERT_EQUAL(MSP_Box::BOX_GPS_RESCUE, box->boxId);
+}
+
 void test_msp_state()
 {
     static MSP_Base msp;
@@ -122,6 +137,7 @@ int main([[maybe_unused]] int argc, [[maybe_unused]] char **argv)
 {
     UNITY_BEGIN();
 
+    RUN_TEST(test_msp_box);
     RUN_TEST(test_msp_state);
     RUN_TEST(test_get_msp_base_api_version);
 
