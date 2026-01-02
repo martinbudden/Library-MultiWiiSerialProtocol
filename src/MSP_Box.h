@@ -143,21 +143,29 @@ protected:
     std::bitset<BOX_COUNT> _activeBoxIds {};
     // permanent IDs must uniquely identify BOX meaning, DO NOT REUSE THEM!
     static constexpr std::array<box_t, BOX_COUNT> boxes = {{
-        { .id = BOX_ARM,         .permanentId = 0, .name = "ARM" },
-        { .id = BOX_ANGLE,       .permanentId = 1, .name = "ANGLE" },
-        { .id = BOX_HORIZON,     .permanentId = 2, .name = "HORIZON" },
-        { .id = BOX_ALTHOLD,     .permanentId = 3, .name = "ALTHOLD" },
-        { .id = BOX_ANTIGRAVITY, .permanentId = 4, .name = "ANTI GRAVITY" },
-        { .id = BOX_MAG,         .permanentId = 5, .name = "MAG" },
-        { .id = BOX_HEADFREE,    .permanentId = 6, .name = "HEADFREE" },
-        { .id = BOX_HEADADJ,     .permanentId = 7, .name = "HEADADJ" },
-        { .id = BOX_CAMSTAB,     .permanentId = 8, .name = "CAMSTAB" },
+        { .id = BOX_ARM,         .permanentId = 0,  .name = "ARM" },
+        { .id = BOX_ANGLE,       .permanentId = 1,  .name = "ANGLE" },
+        { .id = BOX_HORIZON,     .permanentId = 2,  .name = "HORIZON" },
+        { .id = BOX_ALTITUDE_HOLD, .permanentId = 3, .name = "ALTHOLD" },
+        { .id = BOX_ANTIGRAVITY, .permanentId = 4,  .name = "ANTI GRAVITY" },
+        { .id = BOX_MAG,         .permanentId = 5,  .name = "MAG" },
+        { .id = BOX_HEADFREE,    .permanentId = 6,  .name = "HEADFREE" },
+        { .id = BOX_HEADADJ,     .permanentId = 7,  .name = "HEADADJ" },
+        { .id = BOX_CAMSTAB,     .permanentId = 8,  .name = "CAMSTAB" },
+//      { .id = BOX_CAM_TRIG,    .permanentId = 9,  .name = "CAM_TRIG", },
+//      { .id = BOX_GPS_HOME,    .permanentId = 10, .name = "GPS HOME" },
+        { .id = BOX_POSITION_HOLD, .permanentId = 11, .name = "POS HOLD" },
         { .id = BOX_PASSTHRU,    .permanentId = 12, .name = "PASSTHRU" },
         { .id = BOX_BEEPER_ON,   .permanentId = 13, .name = "BEEPER" },
+//      { .id = BOX_LED_MAX,     .permanentId = 14, .name = "LEDMAX" }, (removed)
         { .id = BOX_LED_LOW,     .permanentId = 15, .name = "LEDLOW" },
+//      { .id = BOX_LLIGHTS,     .permanentId = 16, .name = "LLIGHTS" }, (removed)
         { .id = BOX_CALIBRATE,   .permanentId = 17, .name = "CALIBRATE" },
+//      { .id = BOX_GOVERNOR,    .permanentId = 18, .name = "GOVERNOR" }, (removed)
         { .id = BOX_OSD,         .permanentId = 19, .name = "OSD DISABLE" },
         { .id = BOX_TELEMETRY,   .permanentId = 20, .name = "TELEMETRY" },
+//      { .id = BOX_GTUNE,       .permanentId = 21, .name = "GTUNE" }, (removed)
+//      { .id = BOX_RANGEFINDER, .permanentId = 22, .name = "RANGEFINDER" }, (removed)
         { .id = BOX_SERVO1,      .permanentId = 23, .name = "SERVO1" },
         { .id = BOX_SERVO2,      .permanentId = 24, .name = "SERVO2" },
         { .id = BOX_SERVO3,      .permanentId = 25, .name = "SERVO3" },
@@ -173,6 +181,7 @@ protected:
         { .id = BOX_CRASH_FLIP,  .permanentId = 35, .name = "FLIP OVER AFTER CRASH" },
         { .id = BOX_PREARM,      .permanentId = 36, .name = "PREARM" },
         { .id = BOX_BEEP_GPS_COUNT, .permanentId = 37, .name = "GPS BEEP SATELLITE COUNT" },
+//      { .id = BOX3D_ON_A_SWITCH,.permanentId= 38, .name = "3D ON A SWITCH", }, (removed)
         { .id = BOX_VTX_PIT_MODE, .permanentId = 39, .name = "VTX PIT MODE" },
         { .id = BOX_USER1,       .permanentId = 40, .name = "USER1" }, // may be overridden
         { .id = BOX_USER2,       .permanentId = 41, .name = "USER2" },

@@ -167,7 +167,7 @@ void MSP_Box::init(bool accelerometerAvailable, bool inflightAccCalibrationEnabl
     if (accelerometerAvailable) {
         enabled.set(BOX_ANGLE);
         enabled.set(BOX_HORIZON);
-        enabled.set(BOX_ALTHOLD);
+        enabled.set(BOX_ALTITUDE_HOLD);
         enabled.set(BOX_HEADFREE);
         enabled.set(BOX_HEADADJ);
         enabled.set(BOX_FPV_ANGLE_MIX);
