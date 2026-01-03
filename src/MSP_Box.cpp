@@ -76,6 +76,18 @@ bool MSP_Box::getActiveBoxId(id_e boxId) const
     return _activeBoxIds[boxId];
 }
 
+void MSP_Box::setActiveBoxId(id_e boxId)
+{
+    if (findBoxByBoxId(boxId) != nullptr) {
+        _activeBoxIds.set(boxId);
+    }
+}
+
+void MSP_Box::resetActiveBoxId(id_e boxId)
+{
+    _activeBoxIds.reset(boxId);
+}
+
 int MSP_Box::serializeBoxName(StreamBuf& dst, const box_t* box) // box may be nullptr
 {
     if (box == nullptr) {
@@ -148,54 +160,4 @@ void MSP_Box::serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const
         ++boxIndex; // count active boxes
         }
     }
-}
-
-void MSP_Box::init(bool accelerometerAvailable, bool inflightAccCalibrationEnabled, bool mspOverrideEnabled, bool airModeEnabled, bool antiGravityEnabled) // NOLINT(readability-convert-member-functions-to-static) false positive
-{
-    bitset_t enabled {};
-
-    enabled.set(BOX_ARM);
-    enabled.set(BOX_PREARM);
-    if (!airModeEnabled) {
-        enabled.set(BOX_AIRMODE);
-    }
-
-    if (!antiGravityEnabled) {
-        enabled.set(BOX_ANTIGRAVITY);
-    }
-
-    if (accelerometerAvailable) {
-        enabled.set(BOX_ANGLE);
-        enabled.set(BOX_HORIZON);
-        enabled.set(BOX_ALTITUDE_HOLD);
-        enabled.set(BOX_HEADFREE);
-        enabled.set(BOX_HEADADJ);
-        enabled.set(BOX_FPV_ANGLE_MIX);
-        if (inflightAccCalibrationEnabled) {
-            enabled.set(BOX_CALIBRATE);
-        }
-        enabled.set(BOX_ACRO_TRAINER);
-    }
-
-    enabled.set(BOX_FAILSAFE);
-
-    enabled.set(BOX_BEEPER_ON);
-    enabled.set(BOX_BEEPER_MUTE);
-
-    enabled.set(BOX_PARALYZE);
-
-    if (mspOverrideEnabled) {
-        enabled.set(BOX_MSP_OVERRIDE);
-    }
-
-    enabled.set(BOX_STICK_COMMAND_DISABLE);
-    enabled.set(BOX_READY);
-
-    // check that all enabled IDs are in boxes array (check may be skipped when using findBoxById() functions)
-    for (size_t boxId = 0;  boxId < BOX_COUNT; ++boxId) {
-        if (enabled[boxId] && findBoxByBoxId(static_cast<id_e>(boxId)) == nullptr) {
-            enabled.reset(boxId); // this should not happen, but handle it gracefully
-        }
-    }
-    _activeBoxIds = enabled;
 }

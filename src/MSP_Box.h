@@ -55,13 +55,6 @@ class StreamBuf;
 class MSP_Box {
 public:
     MSP_Box() = default;
-    void init(
-        bool accelerometerAvailable,
-        bool inflightAccCalibrationEnabled,
-        bool mspOverrideEnabled,
-        bool airModeEnabled,
-        bool antiGravityEnabled
-    );
 public:
     struct box_t {
         const uint8_t id;
@@ -139,6 +132,8 @@ public:
     void serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const;
     void serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const;
     bool getActiveBoxId(id_e boxId) const;
+    void setActiveBoxId(id_e boxId);
+    void resetActiveBoxId(id_e boxId);
 protected:
     std::bitset<BOX_COUNT> _activeBoxIds {};
     // permanent IDs must uniquely identify BOX meaning, DO NOT REUSE THEM!
