@@ -76,7 +76,7 @@ bool MSP_Box::getActiveBoxId(id_e boxId) const
     return _activeBoxIds[boxId];
 }
 
-void MSP_Box::setActiveBoxId(id_e boxId)
+void MSP_Box::setActiveBoxId(id_e boxId) // NOLINT(readability-convert-member-functions-to-static)
 {
     if (findBoxByBoxId(boxId) != nullptr) {
         _activeBoxIds.set(boxId);
