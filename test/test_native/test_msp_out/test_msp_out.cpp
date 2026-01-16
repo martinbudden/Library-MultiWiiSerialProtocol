@@ -79,7 +79,7 @@ private:
 Sends the packet to the flight controller
 Called from  MSP_Stream::serialEncode() which is called from MSP_Stream::processReceivedCommand() which is called from MSP_Stream::putChar()
 
-In "normal" implementations writes the frame to the serial port. 
+In "normal" implementations writes the frame to the serial port.
 Here we just check that the correct value has been received.
 */
 size_t MSP_SerialTest::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen)
@@ -90,7 +90,7 @@ size_t MSP_SerialTest::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_
     TEST_ASSERT_EQUAL('>', hdr[2]);
     TEST_ASSERT_EQUAL(5, hdrLen);
     if (hdr[4] == MSP_BASE_API_VERSION) {
-        TEST_ASSERT_EQUAL(3, dataLen); 
+        TEST_ASSERT_EQUAL(3, dataLen);
         TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, data[0]);
         TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, data[1]);
         TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, data[2]);
@@ -98,7 +98,7 @@ size_t MSP_SerialTest::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_
         static constexpr uint8_t replyChecksum = 44;
         TEST_ASSERT_EQUAL(replyChecksum, *crc);
     } else if (hdr[4] == MSP_Test::MSP_ATTITUDE) {
-        TEST_ASSERT_EQUAL(6, dataLen); 
+        TEST_ASSERT_EQUAL(6, dataLen);
         TEST_ASSERT_EQUAL(100, data[0]);
         TEST_ASSERT_EQUAL(0, data[1]);
         TEST_ASSERT_EQUAL(200, data[2]);

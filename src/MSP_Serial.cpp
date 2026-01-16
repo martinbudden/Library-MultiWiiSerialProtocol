@@ -124,7 +124,7 @@ size_t MSP_Serial::sendFrame(const uint8_t* header, size_t headerLen, const uint
     _mspSerialPort.write(header, headerLen);
 
     // write the data
-    
+
     StreamBufReader sbuf(data, dataLen);
     while (sbuf.bytesRemaining() > 0) {
         const size_t available = _mspSerialPort.availableForWrite();
