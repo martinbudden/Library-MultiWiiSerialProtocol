@@ -80,6 +80,7 @@
         "Winline",
         "Wmissing",
         "Wnarrowing",
+        "Wnon",
         "Wpacked",
         "Wpadded",
         "Wpedantic",
