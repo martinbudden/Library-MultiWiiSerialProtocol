@@ -63,7 +63,7 @@ MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBufWriter& dst, Stream
 {
     (void)postProcessFn;
 
-    const ptrdiff_t dataSize = src.bytes_remaining();
+    const size_t dataSize = src.bytes_remaining();
     if (dataSize == 0) {
         // Legacy format
         _passthroughMode = PASSTHROUGH_ESC_4WAY;

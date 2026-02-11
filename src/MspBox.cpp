@@ -114,7 +114,7 @@ int MspBox::serialize_box_name(StreamBufWriter& dst, const box_t* box) // box ma
     const char* name = box->name;
     size_t len = strlen(name);
 #endif
-    if (dst.bytes_remaining() < static_cast<ptrdiff_t>(len + 1)) {
+    if (dst.bytes_remaining() < len + 1) {
         // boxname or separator won't fit
         return -1;
     }
