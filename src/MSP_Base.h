@@ -123,7 +123,7 @@ public:
     };
 
     struct packet_t {
-        StreamBuf payload;  // payload only, ie no header or crc
+        StreamBufWriter payload;  // payload only, ie no header or crc
         int16_t cmd;
         int16_t result;
         uint8_t flags;      // MSPv2 flags byte
@@ -149,10 +149,10 @@ public:
 
     virtual void rebootFn(serialPort_t* serialPort);
 
-    virtual result_e setPassthroughCommand(StreamBuf& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
+    virtual result_e setPassthroughCommand(StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
 
-    virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
-    virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
+    virtual result_e processGetCommand(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual result_e processGetCommand(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
 
     virtual result_e processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 

@@ -48,7 +48,7 @@
 #include "MSP_SerialPortBase.h"
 #include "MSP_Stream.h"
 
-#include <StreamBuf.h>
+#include <StreamBufWriter.h>
 
 static void yield();
 
@@ -126,9 +126,9 @@ size_t MSP_Serial::sendFrame(const uint8_t* header, size_t headerLen, const uint
     // write the data
 
     StreamBufReader sbuf(data, dataLen);
-    while (sbuf.bytesRemaining() > 0) {
+    while (sbuf.bytes_remaining() > 0) {
         const size_t available = _mspSerialPort.availableForWrite();
-        const size_t writeLen = std::min(available, sbuf.bytesRemaining());
+        const size_t writeLen = std::min(available, static_cast<size_t>(sbuf.bytes_remaining()));
         _mspSerialPort.write(sbuf.ptr(), writeLen);
         sbuf.advance(writeLen);
         yield();

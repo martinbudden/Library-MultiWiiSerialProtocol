@@ -320,7 +320,7 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncode(const MSP_Base::const_
         },
         .crcBuf = { 0, 0 },
         .dataPtr = packet.payload.ptr(),
-        .dataLen = static_cast<uint16_t>(packet.payload.bytesRemaining()),
+        .dataLen = static_cast<uint16_t>(packet.payload.bytes_remaining()),
 
         .hdrLen = MSP_HEADER_LENGTH,
         .crcLen = 0,
@@ -419,7 +419,7 @@ MSP_Stream::packet_with_header_t MSP_Stream::serialEncodeMSPv1(uint8_t command, 
         .direction = MSP_Base::DIRECTION_REPLY
     };
 
-    packet.payload.switchToReader(); // change streambuf direction
+    packet.payload.switch_to_reader(); // change streambuf direction
     setPacketState(MSP_Stream::MSP_IDLE);
     return serialEncode(packet, _mspVersion);
 }
@@ -439,7 +439,7 @@ MSP_Base::const_packet_t MSP_Stream::processInbuf()
     };
 
     MSP_Base::packet_t reply = {
-        .payload = StreamBuf(&_outBuf[0], _outBuf.size()),
+        .payload = StreamBufWriter(&_outBuf[0], _outBuf.size()),
         .cmd = -1, // set to command.cmd in processCommand
         .result = MSP_Base::RESULT_NO_REPLY,
         .flags = 0,
@@ -449,7 +449,7 @@ MSP_Base::const_packet_t MSP_Stream::processInbuf()
     MSP_Base::postProcessFnPtr mspPostProcessFn = nullptr;
     const MSP_Base::result_e status = _mspBase.processCommand(command, reply, _descriptor, &mspPostProcessFn);
     (void)status;
-    reply.payload.switchToReader(); // change streambuf direction
+    reply.payload.switch_to_reader(); // change streambuf direction
 
     const MSP_Base::const_packet_t replyConst = {
         .payload = StreamBufReader(reply.payload),
@@ -477,7 +477,7 @@ MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header
     };
 
     MSP_Base::packet_t reply = {
-        .payload = StreamBuf(&_outBuf[0], _outBuf.size()),
+        .payload = StreamBufWriter(&_outBuf[0], _outBuf.size()),
         .cmd = -1, // set to command.cmd by processCommand
         .result = MSP_Base::RESULT_NO_REPLY,
         .flags = 0,
@@ -498,7 +498,7 @@ MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header
         .direction = reply.direction
     };
     if (status != MSP_Base::RESULT_NO_REPLY) {
-        replyConst.payload.switchToReader(); // change streambuf direction
+        replyConst.payload.switch_to_reader(); // change streambuf direction
         if (pwh) {
             *pwh = serialEncode(replyConst, _mspVersion);
         } else {
@@ -513,7 +513,7 @@ MSP_Base::postProcessFnPtr MSP_Stream::processReceivedCommand(packet_with_header
 void MSP_Stream::processReceivedReply()
 {
     const MSP_Base::packet_t reply = {
-        .payload = StreamBuf(&_inBuf[0], _dataSize),
+        .payload = StreamBufWriter(&_inBuf[0], _dataSize),
         .cmd = static_cast<int16_t>(_cmdMSP),
         .result = 0,
         .flags = 0,

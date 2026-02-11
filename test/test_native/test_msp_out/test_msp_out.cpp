@@ -15,25 +15,25 @@ class MSP_Test : public MSP_Base {
 public:
     enum { MSP_ATTITUDE = 108 };
 public:
-    virtual result_e processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
+    virtual result_e processGetCommand(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) override;
 };
 
-MSP_Base::result_e MSP_Test::processGetCommand(int16_t cmdMSP, StreamBuf& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
+MSP_Base::result_e MSP_Test::processGetCommand(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
 {
     (void)srcDesc;
     (void)postProcessFn;
 
     switch (cmdMSP) {
     case MSP_BASE_API_VERSION:
-        dst.writeU8(MSP_BASE_PROTOCOL_VERSION);
-        dst.writeU8(MSP_BASE_API_VERSION_MAJOR);
-        dst.writeU8(MSP_BASE_API_VERSION_MINOR);
+        dst.write_u8(MSP_BASE_PROTOCOL_VERSION);
+        dst.write_u8(MSP_BASE_API_VERSION_MAJOR);
+        dst.write_u8(MSP_BASE_API_VERSION_MINOR);
         break;
 
     case MSP_ATTITUDE:
-        dst.writeU16(100);
-        dst.writeU16(200);
-        dst.writeU16(300);
+        dst.write_u16(100);
+        dst.write_u16(200);
+        dst.write_u16(300);
         break;
     default:
         return RESULT_CMD_UNKNOWN;
@@ -126,14 +126,14 @@ void test_msp_out()
     static const MSP_Stream mspStream(msp);
 
     std::array<uint8_t, 128> buf;
-    StreamBuf sbuf(&buf[0], sizeof(buf)); // NOLINT(cppcoreguidelines-init-variables)
+    StreamBufWriter sbuf(&buf[0], sizeof(buf)); // NOLINT(cppcoreguidelines-init-variables)
 
     msp.processGetCommand(MSP_BASE_API_VERSION, sbuf, 0, nullptr);
-    TEST_ASSERT_EQUAL(sizeof(buf) - 3, sbuf.bytesRemaining());
-    sbuf.switchToReader();
-    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, sbuf.readU8());
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, sbuf.readU8());
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, sbuf.readU8());
+    TEST_ASSERT_EQUAL(sizeof(buf) - 3, sbuf.bytes_remaining());
+    sbuf.switch_to_reader();
+    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, sbuf.read_u8());
+    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, sbuf.read_u8());
+    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, sbuf.read_u8());
 }
 
 void test_putchar()

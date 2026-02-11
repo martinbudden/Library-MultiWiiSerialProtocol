@@ -50,7 +50,7 @@
 #include <bitset>
 #include <cstdint>
 
-class StreamBuf;
+class StreamBufWriter;
 
 class MSP_Box {
 public:
@@ -76,7 +76,7 @@ public:
         BOX_HEADFREE,
         BOX_CHIRP,
         BOX_PASSTHRU,
-        BOX_FAILSAFE,
+        BOX_FAILSAFE = 9,
         BOX_GPS_RESCUE,
         BOX_ID_FLIGHTMODE_COUNT,
 
@@ -87,7 +87,7 @@ public:
         BOX_HEADADJ,
         BOX_CAMSTAB,
         BOX_BEEPER_ON,
-        BOX_LED_LOW,
+        BOX_LED_LOW = 15,
         BOX_CALIBRATE,
         BOX_OSD,
         BOX_TELEMETRY,
@@ -96,7 +96,7 @@ public:
         BOX_SERVO3,
         BOX_BLACKBOX,
         BOX_AIRMODE,
-        BOX_3D,
+        BOX_3D = 24,
         BOX_FPV_ANGLE_MIX,
         BOX_BLACKBOX_ERASE,
         BOX_CAMERA1,
@@ -104,33 +104,33 @@ public:
         BOX_CAMERA3,
         BOX_CRASH_FLIP,
         BOX_PREARM,
-        BOX_BEEP_GPS_COUNT,
+        BOX_BEEP_GPS_COUNT= 32,
         BOX_VTX_PIT_MODE,
         BOX_PARALYZE,
         BOX_USER1,
         BOX_USER2,
         BOX_USER3,
         BOX_USER4,
-        BOX_PID_AUDIO,
+        BOX_PID_AUDIO = 39,
         BOX_ACRO_TRAINER,
         BOX_VTX_CONTROL_DISABLE,
         BOX_LAUNCH_CONTROL,
         BOX_MSP_OVERRIDE,
         BOX_STICK_COMMAND_DISABLE,
-        BOX_BEEPER_MUTE,
+        BOX_BEEPER_MUTE = 45,
         BOX_READY,
         BOX_LAP_TIMER_RESET,
         BOX_COUNT // number of boxes
     };
     typedef std::bitset<BOX_COUNT> bitset_t;
-    typedef int serializeBoxFn(StreamBuf& dst, const box_t* box);
+    typedef int serializeBoxFn(StreamBufWriter& dst, const box_t* box);
 public:
     static const box_t* findBoxByBoxId(id_e boxId);
     static const box_t* findBoxByPermanentId(uint8_t permanentId);
 
-    static int serializeBoxName(StreamBuf& dst, const box_t* box);
-    void serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const;
-    void serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const;
+    static int serializeBoxName(StreamBufWriter& dst, const box_t* box);
+    void serializeBoxReplyBoxName(StreamBufWriter& dst, size_t page) const;
+    void serializeBoxReplyPermanentId(StreamBufWriter& dst, size_t page) const;
     bool getActiveBoxId(id_e boxId) const;
     void setActiveBoxId(id_e boxId);
     void resetActiveBoxId(id_e boxId);

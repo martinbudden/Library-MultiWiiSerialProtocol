@@ -46,7 +46,7 @@
 
 #include "MSP_Box.h"
 
-#include <StreamBuf.h>
+#include <StreamBufWriter.h>
 #include <cstring>
 
 const MSP_Box::box_t* MSP_Box::findBoxByBoxId(id_e boxId)
@@ -88,7 +88,7 @@ void MSP_Box::resetActiveBoxId(id_e boxId)
     _activeBoxIds.reset(boxId);
 }
 
-int MSP_Box::serializeBoxName(StreamBuf& dst, const box_t* box) // box may be nullptr
+int MSP_Box::serializeBoxName(StreamBufWriter& dst, const box_t* box) // box may be nullptr
 {
     if (box == nullptr) {
         return -1;
@@ -114,16 +114,16 @@ int MSP_Box::serializeBoxName(StreamBuf& dst, const box_t* box) // box may be nu
     const char* name = box->name;
     size_t len = strlen(name);
 #endif
-    if (dst.bytesRemaining() < len + 1) {
+    if (dst.bytes_remaining() < static_cast<ptrdiff_t>(len + 1)) {
         // boxname or separator won't fit
         return -1;
     }
-    dst.writeData(name, len);
-    dst.writeU8(';');
+    dst.write_data(name, len);
+    dst.write_u8(';');
     return static_cast<int>(len) + 1;
 }
 
-void MSP_Box::serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const
+void MSP_Box::serializeBoxReplyBoxName(StreamBufWriter& dst, size_t page) const
 {
     size_t boxIndex = 0;
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
@@ -141,7 +141,7 @@ void MSP_Box::serializeBoxReplyBoxName(StreamBuf& dst, size_t page) const
         }
     }
 }
-void MSP_Box::serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const
+void MSP_Box::serializeBoxReplyPermanentId(StreamBufWriter& dst, size_t page) const
 {
     size_t boxIndex = 0;
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
@@ -151,11 +151,11 @@ void MSP_Box::serializeBoxReplyPermanentId(StreamBuf& dst, size_t page) const
         if (getActiveBoxId(boxId)) {
             if (boxIndex >= pageStart && boxIndex < pageEnd) {
                 const box_t* box = findBoxByBoxId(boxId);
-                if (box == nullptr || dst.bytesRemaining() < 1) {
+                if (box == nullptr || dst.bytes_remaining() < 1) {
                     // failed to serialize, abort
                     return;
                 }
-                dst.writeU8(box->permanentId);
+                dst.write_u8(box->permanentId);
             }
         ++boxIndex; // count active boxes
         }

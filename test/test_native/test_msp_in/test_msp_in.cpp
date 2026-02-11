@@ -32,8 +32,8 @@ MSP_Base::result_e MSP_Test::processSetCommand(int16_t cmdMSP, StreamBufReader& 
     case MSP_SET_NAME: {
         _name.fill(0xFF);
         size_t ii = 0;
-        while (src.bytesRemaining()) {
-            _name[ii++] = src.readU8();
+        while (src.bytes_remaining()) {
+            _name[ii++] = src.read_u8();
         }
         _name[ii] = 0; // zero terminate
         break;

@@ -143,14 +143,14 @@ void test_get_msp_base_api_version()
     MSP_Base::const_packet_t reply = mspStream.processInbuf();
 
     TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION, reply.cmd);
-    const uint8_t b0 = reply.payload.readU8();
+    const uint8_t b0 = reply.payload.read_u8();
     TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, b0);
-    const uint8_t b1 = reply.payload.readU8();
+    const uint8_t b1 = reply.payload.read_u8();
     TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, b1);
-    const uint8_t b2 = reply.payload.readU8();
+    const uint8_t b2 = reply.payload.read_u8();
     TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, b2);
 
-    reply.payload.switchToReader(); // change streambuf direction
+    reply.payload.switch_to_reader(); // change streambuf direction
     const MSP_Stream::packet_with_header_t pwh = mspStream.serialEncode(reply, MSP_Base::V1); // encode with MSP version 1
 
     TEST_ASSERT_EQUAL('$', pwh.hdrBuf[0]);
