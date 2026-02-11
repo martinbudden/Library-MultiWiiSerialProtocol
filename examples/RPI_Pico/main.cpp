@@ -98,7 +98,7 @@ size_t MSP_Serial::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* d
 
     while (sbuf.bytes_remaining() > 0) {
         const size_t available = _mspSerial.availableForWrite();
-        const size_t writeLen = std::min(available, sbuf.bytes_remaining());
+        const size_t writeLen = std::min(available, static_cast<size_t>(sbuf.bytes_remaining()));
         _mspSerial.write(sbuf.ptr(), writeLen);
         sbuf.advance(writeLen);
         delay(1);

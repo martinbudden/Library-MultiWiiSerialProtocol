@@ -44,12 +44,12 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_Box.h"
+#include "MspBox.h"
 
 #include <StreamBufWriter.h>
 #include <cstring>
 
-const MSP_Box::box_t* MSP_Box::findBoxByBoxId(id_e boxId)
+const MspBox::box_t* MspBox::findBoxByBoxId(uint8_t boxId)
 {
     for (const box_t& box : boxes) {
         // cppcheck-suppress useStlAlgorithm
@@ -60,35 +60,35 @@ const MSP_Box::box_t* MSP_Box::findBoxByBoxId(id_e boxId)
     return nullptr;
 }
 
-const MSP_Box::box_t* MSP_Box::findBoxByPermanentId(uint8_t permanentId)
+const MspBox::box_t* MspBox::findBoxByPermanentId(uint8_t permanent_id)
 {
     for (const box_t& box : boxes) {
         // cppcheck-suppress useStlAlgorithm
-        if (box.permanentId == permanentId) {
+        if (box.permanent_id == permanent_id) {
             return &box;
         }
     }
     return nullptr;
 }
 
-bool MSP_Box::getActiveBoxId(id_e boxId) const
+bool MspBox::get_active_box_id(uint8_t boxId) const
 {
     return _activeBoxIds[boxId];
 }
 
-void MSP_Box::setActiveBoxId(id_e boxId) // NOLINT(readability-convert-member-functions-to-static)
+void MspBox::set_active_box_id(uint8_t boxId) // NOLINT(readability-convert-member-functions-to-static)
 {
     if (findBoxByBoxId(boxId) != nullptr) {
         _activeBoxIds.set(boxId);
     }
 }
 
-void MSP_Box::resetActiveBoxId(id_e boxId)
+void MspBox::reset_active_box_id(uint8_t boxId)
 {
     _activeBoxIds.reset(boxId);
 }
 
-int MSP_Box::serializeBoxName(StreamBufWriter& dst, const box_t* box) // box may be nullptr
+int MspBox::serialize_box_name(StreamBufWriter& dst, const box_t* box) // box may be nullptr
 {
     if (box == nullptr) {
         return -1;
@@ -123,16 +123,15 @@ int MSP_Box::serializeBoxName(StreamBufWriter& dst, const box_t* box) // box may
     return static_cast<int>(len) + 1;
 }
 
-void MSP_Box::serializeBoxReplyBoxName(StreamBufWriter& dst, size_t page) const
+void MspBox::serialize_box_reply_box_name(StreamBufWriter& dst, size_t page) const
 {
     size_t boxIndex = 0;
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
-    for (size_t id = 0; id < BOX_COUNT; ++id) {
-        const auto boxId = static_cast<id_e>(id);
-        if (getActiveBoxId(boxId)) {
+    for (uint8_t id = 0; id < BOX_COUNT; ++id) {
+        if (get_active_box_id(id)) {
             if (boxIndex >= pageStart && boxIndex < pageEnd) {
-                if (serializeBoxName(dst, findBoxByBoxId(boxId)) < 0) {
+                if (serialize_box_name(dst, findBoxByBoxId(id)) < 0) {
                     // failed to serialize, abort
                     return;
                 }
@@ -141,21 +140,20 @@ void MSP_Box::serializeBoxReplyBoxName(StreamBufWriter& dst, size_t page) const
         }
     }
 }
-void MSP_Box::serializeBoxReplyPermanentId(StreamBufWriter& dst, size_t page) const
+void MspBox::serialize_box_reply_permanent_id(StreamBufWriter& dst, size_t page) const
 {
     size_t boxIndex = 0;
     const size_t pageStart = page * MAX_BOXES_PER_PAGE;
     const size_t pageEnd = pageStart + MAX_BOXES_PER_PAGE;
-    for (size_t id = 0; id < BOX_COUNT; ++id) {
-        const auto boxId = static_cast<id_e>(id);
-        if (getActiveBoxId(boxId)) {
+    for (uint8_t id = 0; id < BOX_COUNT; ++id) {
+        if (get_active_box_id(id)) {
             if (boxIndex >= pageStart && boxIndex < pageEnd) {
-                const box_t* box = findBoxByBoxId(boxId);
+                const box_t* box = findBoxByBoxId(id);
                 if (box == nullptr || dst.bytes_remaining() < 1) {
                     // failed to serialize, abort
                     return;
                 }
-                dst.write_u8(box->permanentId);
+                dst.write_u8(box->permanent_id);
             }
         ++boxIndex; // count active boxes
         }

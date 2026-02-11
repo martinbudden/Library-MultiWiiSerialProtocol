@@ -1,7 +1,7 @@
-#include <MSP_Box.h>
 #include <MSP_Protocol_Base.h>
 #include <MSP_Serial.h>
 #include <MSP_Stream.h>
+#include <MspBox.h>
 
 #include <unity.h>
 
@@ -16,47 +16,47 @@ void test_msp_box()
 {
     enum { BOX_HORIZON_PERMANENT = 2 };
 
-    const MSP_Box::box_t* box = MSP_Box::findBoxByPermanentId(BOX_HORIZON_PERMANENT);
+    const MspBox::box_t* box = MspBox::findBoxByPermanentId(BOX_HORIZON_PERMANENT);
     TEST_ASSERT_FALSE(box == nullptr);
-    TEST_ASSERT_EQUAL(MSP_Box::BOX_HORIZON, box->id);
+    TEST_ASSERT_EQUAL(MspBox::BOX_HORIZON, box->id);
 
     enum { BOX_GPS_RESCUE_PERMANENT = 46 };
-    box = MSP_Box::findBoxByPermanentId(BOX_GPS_RESCUE_PERMANENT);
+    box = MspBox::findBoxByPermanentId(BOX_GPS_RESCUE_PERMANENT);
     TEST_ASSERT_FALSE(box == nullptr);
-    TEST_ASSERT_EQUAL(MSP_Box::BOX_GPS_RESCUE, box->id);
+    TEST_ASSERT_EQUAL(MspBox::BOX_GPS_RESCUE, box->id);
 
 
-    MSP_Box mspBox;
+    MspBox mspBox {};
 
-    TEST_ASSERT_EQUAL(false, mspBox.getActiveBoxId(MSP_Box::BOX_ARM));
-    mspBox.setActiveBoxId(MSP_Box::BOX_ARM);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_ARM));
-    mspBox.resetActiveBoxId(MSP_Box::BOX_ARM);
-    TEST_ASSERT_EQUAL(false, mspBox.getActiveBoxId(MSP_Box::BOX_ARM));
+    TEST_ASSERT_EQUAL(false, mspBox.get_active_box_id(MspBox::BOX_ARM));
+    mspBox.set_active_box_id(MspBox::BOX_ARM);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_ARM));
+    mspBox.reset_active_box_id(MspBox::BOX_ARM);
+    TEST_ASSERT_EQUAL(false, mspBox.get_active_box_id(MspBox::BOX_ARM));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_PREARM);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_PREARM));
+    mspBox.set_active_box_id(MspBox::BOX_PREARM);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_PREARM));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_AIRMODE);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_AIRMODE));
+    mspBox.set_active_box_id(MspBox::BOX_AIRMODE);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_AIRMODE));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_ANTIGRAVITY);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_ANTIGRAVITY));
+    mspBox.set_active_box_id(MspBox::BOX_ANTIGRAVITY);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_ANTIGRAVITY));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_ANGLE);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_ANGLE));
+    mspBox.set_active_box_id(MspBox::BOX_ANGLE);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_ANGLE));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_HORIZON);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_HORIZON));
+    mspBox.set_active_box_id(MspBox::BOX_HORIZON);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_HORIZON));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_ALTITUDE_HOLD);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_ALTITUDE_HOLD));
+    mspBox.set_active_box_id(MspBox::BOX_ALTITUDE_HOLD);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_ALTITUDE_HOLD));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_HEADFREE);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_HEADFREE));
+    mspBox.set_active_box_id(MspBox::BOX_HEADFREE);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_HEADFREE));
 
-    mspBox.setActiveBoxId(MSP_Box::BOX_HEADADJ);
-    TEST_ASSERT_EQUAL(true, mspBox.getActiveBoxId(MSP_Box::BOX_HEADADJ));
+    mspBox.set_active_box_id(MspBox::BOX_HEADADJ);
+    TEST_ASSERT_EQUAL(true, mspBox.get_active_box_id(MspBox::BOX_HEADADJ));
 }
 
 void test_msp_state()
