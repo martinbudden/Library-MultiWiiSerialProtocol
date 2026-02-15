@@ -94,7 +94,7 @@ static constexpr uint8_t MSP_PROTOCOL_VERSION                = 0;
 static constexpr uint8_t MSP_API_VERSION_MAJOR               = 1;  // increment when major changes are made
 static constexpr uint8_t MSP_API_VERSION_MINOR               = 47; // increment after a release, to set the version for all changes to go into the following release (if no changes to MSP are made between the releases, this can be reverted before the release)
 
-static constexpr uint8_t MSP_API_VERSION_LENGTH              = 2
+static constexpr uint8_t MSP_API_VERSION_LENGTH              = 2;
 
 #define MULTIWII_IDENTIFIER "MWII";
 #define BASEFLIGHT_IDENTIFIER "BAFL";

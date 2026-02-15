@@ -66,7 +66,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
 {
 #if defined(FRAMEWORK_USE_FREERTOS)
     // pdMS_TO_TICKS Converts a time in milliseconds to a time in ticks.
-    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_task_interval_microseconds / 1000);
+    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_taskIntervalMicroseconds / 1000);
     assert(taskIntervalTicks > 0 && "MSP taskIntervalTicks is zero.");
 
     _previousWakeTimeTicks = xTaskGetTickCount();
