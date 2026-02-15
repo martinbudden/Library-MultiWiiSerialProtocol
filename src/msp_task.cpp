@@ -18,8 +18,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_Serial.h"
-#include "MSP_Task.h"
+#include "msp_serial.h"
+#include "msp_task.h"
 
 #include <TimeMicroseconds.h>
 #include <cassert>
@@ -38,35 +38,35 @@
 #endif
 
 
-MSP_Task::MSP_Task(uint32_t taskIntervalMicroseconds, MSP_Serial& mspSerial) :
-    TaskBase(taskIntervalMicroseconds),
-    _taskIntervalMilliseconds(taskIntervalMicroseconds/1000), // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    _mspSerial(mspSerial)
+MspTask::MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial) :
+    TaskBase(task_interval_microseconds),
+    _taskIntervalMilliseconds(task_interval_microseconds/1000), // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
+    _msp_serial(msp_serial)
 {
 }
 
 /*!
 loop() function for when not using FREERTOS
 */
-void MSP_Task::loop()
+void MspTask::loop()
 {
     const uint32_t tickCount = timeMs();
     _tickCountDelta = tickCount - _tickCountPrevious;
 
-    if (_tickCountDelta >= _taskIntervalMilliseconds) { // if _taskIntervalMicroseconds has passed, then run the update
+    if (_tickCountDelta >= _taskIntervalMilliseconds) { // if _task_interval_microseconds has passed, then run the update
         _tickCountPrevious = tickCount;
-        _mspSerial.processInput();
+        _msp_serial.process_input();
     }
 }
 
 /*!
 Task function for the MSP. Sets up and runs the task loop() function.
 */
-[[noreturn]] void MSP_Task::task() // NOLINT(readability-convert-member-functions-to-static)
+[[noreturn]] void MspTask::task() // NOLINT(readability-convert-member-functions-to-static)
 {
 #if defined(FRAMEWORK_USE_FREERTOS)
     // pdMS_TO_TICKS Converts a time in milliseconds to a time in ticks.
-    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_taskIntervalMicroseconds / 1000);
+    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_task_interval_microseconds / 1000);
     assert(taskIntervalTicks > 0 && "MSP taskIntervalTicks is zero.");
 
     _previousWakeTimeTicks = xTaskGetTickCount();
@@ -86,7 +86,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
         _tickCountPrevious = tickCount;
 
         if (_tickCountDelta > 0) { // guard against the case of this while loop executing twice on the same tick interval
-            _mspSerial.processInput();
+            _msp_serial.process_input();
         }
     }
 #else
@@ -95,11 +95,11 @@ Task function for the MSP. Sets up and runs the task loop() function.
 }
 
 /*!
-Wrapper function for MSP_Task::Task with the correct signature to be used in xTaskCreate.
+Wrapper function for MspTask::Task with the correct signature to be used in xTaskCreate.
 */
-[[noreturn]] void MSP_Task::Task(void* arg)
+[[noreturn]] void MspTask::Task(void* arg)
 {
     const TaskBase::parameters_t* parameters = static_cast<TaskBase::parameters_t*>(arg); // NOLINT(cppcoreguidelines-init-variables) false positive
 
-    static_cast<MSP_Task*>(parameters->task)->task(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
+    static_cast<MspTask*>(parameters->task)->task(); // NOLINT(cppcoreguidelines-pro-type-static-cast-downcast)
 }

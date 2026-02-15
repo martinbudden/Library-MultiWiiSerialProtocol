@@ -1,7 +1,7 @@
 #include <Arduino.h>
-#include <MSP_Protocol_Base.h>
-#include <MSP_Serial.h>
-#include <MSP_Stream.h>
+#include <msp_protocol_base.h>
+#include <msp_serial.h>
+#include <msp_stream.h>
 #include <SoftwareSerial.h>
 #include <boards/pico.h>
 
@@ -12,17 +12,17 @@ See https://gist.github.com/Xorgon/d933ea8cc7d657ac309d6fc75374f836 for example 
 enum { SERIAL_INVERTED = false, SERIAL_NOT_INVERTED = true };
 enum { SERIAL_RX = 11, SERIAL_TX = 12 };
 
-static MSP_Stream* mspStreamPtr {};
-static MSP_Serial* mspSerialPtr {};
+static MspStream* msp_stream_ptr {};
+static MspSerial* msp_serial_ptr {};
 
-class MSP_Serial : public MSP_Serial {
+class MspSerial : public MspSerial {
 public:
-    MSP_Serial(MSP_Stream& mspStream, SoftwareSerial& mspSerial) : _mspStream(mspStream), _mspSerial(mspSerial) {}
-    virtual size_t sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen) override;
-    virtual void processInput() override;
+    MspSerial(MspStream& mspStream, SoftwareSerial& msp_serial) : _msp_stream(mspStream), _msp_serial(msp_serial) {}
+    virtual size_t send_frame(const uint8_t* hdr, size_t hdr_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len) override;
+    virtual void process_input() override;
 private:
-    MSP_Stream& _mspStream;
-    SoftwareSerial& _mspSerial;
+    MspStream& _msp_stream;
+    SoftwareSerial& _msp_serial;
     std::array<uint8_t, 256> _buffer {};
 };
 
@@ -39,11 +39,11 @@ void setup()
     static SoftwareSerial softwareSerial(SERIAL_RX, SERIAL_TX, SERIAL_NOT_INVERTED);
     softwareSerial.begin(9600);
 
-    static MSP_Base msp;
-    static MSP_Stream mspStream(msp);
-    static MSP_Serial mspSerial(mspStream, softwareSerial);
+    static MspBase msp;
+    static MspStream mspStream(msp);
+    static MspSerial msp_serial(mspStream, softwareSerial);
 
-    mspStreamPtr = &mspStream;
+    msp_stream_ptr = &mspStream;
 
     // create and send a packet to get the BASE API VERSION
     const uint8_t payloadSize = 0;
@@ -52,7 +52,7 @@ void setup()
         '$', 'M', '<', payloadSize, MSP_BASE_API_VERSION, checksum,
     };
     for (uint8_t inChar : inStream) {
-        mspStream.putChar(inChar, nullptr);
+        mspStream.put_char(inChar, nullptr);
     }
 
 
@@ -60,14 +60,14 @@ void setup()
 
 void loop()
 {
-    mspSerialPtr->processInput();
+    msp_serial_ptr->process_input();
 }
 
 
-void MSP_Serial::processInput()
+void MspSerial::process_input()
 {
-    while (_mspSerial.available() > 0) {
-        const uint8_t inChar = _mspSerial.read();
+    while (_msp_serial.available() > 0) {
+        const uint8_t inChar = _msp_serial.read();
         if (inChar < 0x10) { Serial.print("0"); }
         Serial.print(inChar, HEX);
         Serial.print(" ");
@@ -75,34 +75,34 @@ void MSP_Serial::processInput()
         Serial.println();
 
         Serial.print(inChar);
-        //_mspStream.putChar(inChar, nullptr); // This will invoke MSP_Serial::sendFrame(), when a completed frame is received
+        //_msp_stream.put_char(inChar, nullptr); // This will invoke MspSerial::send_frame(), when a completed frame is received
         // interpre data back from the flight controller
     }
 }
 
 /*!
 Sends the packet to the flight controller
-Called from  MSP_Stream::serialEncode() which is called from MSP_Stream::processReceivedCommand() which is called from MSP_Stream::putChar()
+Called from  MspStreamserial_encode() which is called from MspStreamprocess_received_command() which is called from MspStreamput_char()
 */
-size_t MSP_Serial::sendFrame(const uint8_t* hdr, size_t hdrLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen)
+size_t MspSerial::send_frame(const uint8_t* hdr, size_t hdr_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len)
 {
-    const int totalFrameLength = hdrLen + dataLen + crcLen;
+    const int total_frame_length = hdr_len + data_len + crc_len;
 
     StreamBufWriter sbuf(&_buffer[0], sizeof(_buffer));
 
     // copy the frame into a StreamBuf
-    sbuf.write_data(hdr, hdrLen);
-    sbuf.write_data(data, dataLen);
-    sbuf.write_data(crc, crcLen);
+    sbuf.write_data(hdr, hdr_len);
+    sbuf.write_data(data, data_len);
+    sbuf.write_data(crc, crc_len);
     sbuf.switch_to_reader();
 
     while (sbuf.bytes_remaining() > 0) {
-        const size_t available = _mspSerial.availableForWrite();
+        const size_t available = _msp_serial.available_for_write();
         const size_t writeLen = std::min(available, static_cast<size_t>(sbuf.bytes_remaining()));
-        _mspSerial.write(sbuf.ptr(), writeLen);
+        _msp_serial.write(sbuf.ptr(), writeLen);
         sbuf.advance(writeLen);
         delay(1);
     }
 
-    return totalFrameLength;
+    return total_frame_length;
 }

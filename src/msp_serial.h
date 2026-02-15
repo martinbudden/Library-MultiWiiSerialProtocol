@@ -50,18 +50,18 @@
 #include <cstddef>
 #include <cstdint>
 
-class MSP_Stream;
-class MSP_SerialPortBase;
+class MspStream;
+class MspSerialPortBase;
 
 
-class MSP_Serial {
+class MspSerial {
 public:
-    virtual ~MSP_Serial() = default;
-    MSP_Serial(MSP_Stream& mspStream, MSP_SerialPortBase& mspSerialPort);
+    virtual ~MspSerial() = default;
+    MspSerial(MspStream& msp_stream, MspSerialPortBase& msp_serial_port);
 
-    virtual size_t sendFrame(const uint8_t* headerr, size_t headerLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen);
-    virtual void processInput();
+    virtual size_t send_frame(const uint8_t* headerr, size_t header_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len);
+    virtual void process_input();
 private:
-    MSP_Stream& _mspStream;
-    MSP_SerialPortBase& _mspSerialPort;
+    MspStream& _msp_stream;
+    MspSerialPortBase& _msp_serial_port;
 };

@@ -44,8 +44,8 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_Base.h"
-#include "MSP_Protocol_Base.h"
+#include "msp_base.h"
+#include "msp_protocol_base.h"
 
 #if false
 enum defaultsType_e {
@@ -54,25 +54,25 @@ enum defaultsType_e {
 };
 #endif
 
-void MSP_Base::rebootFn(serialPort_t* serialPort)
+void MspBase::reboot_fn(serialPort_t* serialPort)
 {
     (void)serialPort;
 }
 
-MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::set_passthrough_command(StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)postProcessFn;
 
     const size_t dataSize = src.bytes_remaining();
     if (dataSize == 0) {
         // Legacy format
-        _passthroughMode = PASSTHROUGH_ESC_4WAY;
+        _passthrough_mode = PASSTHROUGH_ESC_4WAY;
     } else {
-        _passthroughMode = src.read_u8();
-        _passthroughArgument = src.read_u8();
+        _passthrough_mode = src.read_u8();
+        _passthrough_argument = src.read_u8();
     }
 
-    switch (_passthroughMode) {
+    switch (_passthrough_mode) {
     case PASSTHROUGH_SERIAL_ID:
     case PASSTHROUGH_SERIAL_FUNCTION_ID:
 #if false
@@ -119,10 +119,10 @@ MSP_Base::result_e  MSP_Base::setPassthroughCommand(StreamBufWriter& dst, Stream
     default:
         dst.write_u8(0);
     }
-    return RESULT_ACK;
+    return MSP_RESULT_ACK;
 }
 
-MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_get_command(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)srcDesc;
     (void)postProcessFn;
@@ -134,29 +134,29 @@ MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBufWriter& 
         dst.write_u8(MSP_BASE_API_VERSION_MINOR);
         break;
     default:
-        return RESULT_CMD_UNKNOWN;
+        return MSP_RESULT_CMD_UNKNOWN;
     }
-    return RESULT_ACK;
+    return MSP_RESULT_ACK;
 }
 
-MSP_Base::result_e MSP_Base::processGetCommand(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_get_command(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)src;
-    return processGetCommand(cmdMSP, dst, srcDesc, postProcessFn);
+    return process_get_command(cmdMSP, dst, srcDesc, postProcessFn);
 }
 
-MSP_Base::result_e MSP_Base::processSetCommand(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_set_command(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)cmdMSP;
     (void)src;
     (void)srcDesc;
     (void)postProcessFn;
-    return RESULT_CMD_UNKNOWN;
+    return MSP_RESULT_CMD_UNKNOWN;
 }
 /*
-Returns RESULT_ACK, RESULT_ERROR or RESULT_NO_REPLY
+Returns MSP_RESULT_ACK, MSP_RESULT_ERROR or MSP_RESULT_NO_REPLY
 */
-MSP_Base::result_e MSP_Base::processCommand(const const_packet_t& cmd, packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
+msp_result_e MspBase::process_command(const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
 {
     StreamBufWriter& dst = reply.payload;
     StreamBufReader src(cmd.payload);
@@ -164,23 +164,23 @@ MSP_Base::result_e MSP_Base::processCommand(const const_packet_t& cmd, packet_t&
     // initialize reply by default
     reply.cmd = cmd.cmd;
 
-    MSP_Base::result_e ret = processGetCommand(cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
-    if (ret == RESULT_CMD_UNKNOWN) {
+    msp_result_e ret = process_get_command(cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
+    if (ret == MSP_RESULT_CMD_UNKNOWN) {
         if (cmdMSP == MSP_BASE_SET_PASSTHROUGH) {
-            ret = setPassthroughCommand(dst, src, postProcessFn);
+            ret = set_passthrough_command(dst, src, postProcessFn);
 #ifdef USE_FLASHFS
         } else if (cmdMSP == MSP_DATAFLASH_READ) {
             ret = mspFcDataFlashReadCommand(dst, src);
 #endif
         } else {
-            ret = processSetCommand(cmdMSP, src, srcDesc, postProcessFn); // chains to processReadCommand
+            ret = process_set_command(cmdMSP, src, srcDesc, postProcessFn); // chains to processReadCommand
         }
     }
     reply.result = ret;
     return ret;
 }
 
-void MSP_Base::processReply(const packet_t& reply)
+void MspBase::process_reply(const msp_packet_t& reply)
 {
     (void)reply;
 }

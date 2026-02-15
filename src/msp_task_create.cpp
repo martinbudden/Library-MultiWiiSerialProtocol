@@ -18,7 +18,7 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_Task.h"
+#include "msp_task.h"
 
 #include <array>
 #include <cassert>
@@ -40,15 +40,15 @@
 #endif
 
 
-MSP_Task* MSP_Task::createTask(MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
     task_info_t taskInfo {}; // NOLINT(cppcoreguidelines-init-variables) false positive
-    return createTask(taskInfo, mspSerial, priority, core, taskIntervalMicroseconds);
+    return create_task(taskInfo, msp_serial, priority, core, task_interval_microseconds);
 }
 
-MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
-    static MSP_Task mspTask(taskIntervalMicroseconds, mspSerial);
+    static MspTask mspTask(task_interval_microseconds, msp_serial);
 
     // Note that task parameters must not be on the stack, since they are used when the task is started, which is after this function returns.
     static TaskBase::parameters_t taskParameters { // NOLINT(misc-const-correctness) false positive
@@ -64,12 +64,12 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uin
 #endif
     taskInfo = {
         .taskHandle = nullptr,
-        .name = "MSP_Task",
+        .name = "MspTask",
         .stackDepthBytes = MSP_TASK_STACK_DEPTH_BYTES,
         .stackBuffer = reinterpret_cast<uint8_t*>(&stack[0]), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         .priority = priority,
         .core = core,
-        .taskIntervalMicroseconds = taskIntervalMicroseconds,
+        .taskIntervalMicroseconds = task_interval_microseconds,
     };
 
 #if defined(FRAMEWORK_USE_FREERTOS)
@@ -79,7 +79,7 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uin
     static StaticTask_t taskBuffer;
 #if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     taskInfo.taskHandle = xTaskCreateStaticPinnedToCore(
-        MSP_Task::Task,
+        MspTask::Task,
         taskInfo.name,
         taskInfo.stackDepthBytes / sizeof(StackType_t),
         &taskParameters,
@@ -91,7 +91,7 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uin
     assert(taskInfo.taskHandle != nullptr && "Unable to create MSP task");
 #elif defined(FRAMEWORK_RPI_PICO) || defined(FRAMEWORK_ARDUINO_RPI_PICO)
     taskInfo.taskHandle = xTaskCreateStaticAffinitySet(
-        MSP_Task::Task,
+        MspTask::Task,
         taskInfo.name,
         taskInfo.stackDepthBytes / sizeof(StackType_t),
         &taskParameters,
@@ -103,7 +103,7 @@ MSP_Task* MSP_Task::createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uin
     assert(taskInfo.taskHandle != nullptr && "Unable to create MSP task");
 #else
     taskInfo.taskHandle = xTaskCreateStatic(
-        MSP_Task::Task,
+        MspTask::Task,
         taskInfo.name,
         taskInfo.stackDepthBytes / sizeof(StackType_t),
         &taskParameters,

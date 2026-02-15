@@ -44,11 +44,11 @@
  * If not, see <http://www.gnu.org/licenses/>.
  */
 
-#include "MSP_Serial.h"
-#include "MSP_SerialPortBase.h"
-#include "MSP_Stream.h"
+#include "msp_serial.h"
+#include "msp_serial_port_base.h"
+#include "msp_stream.h"
 
-#include <StreamBufWriter.h>
+#include <stream_buf_writer.h>
 
 static void yield();
 
@@ -80,65 +80,65 @@ static void yield() {}
 #endif
 
 
-MSP_Serial::MSP_Serial(MSP_Stream& mspStream, MSP_SerialPortBase& mspSerialPort) :
-    _mspStream(mspStream),
-    _mspSerialPort(mspSerialPort)
+MspSerial::MspSerial(MspStream& msp_stream, MspSerialPortBase& msp_serial_port) :
+    _msp_stream(msp_stream),
+    _msp_serial_port(msp_serial_port)
 {
-    mspStream.setMSP_Serial(this);
+    msp_stream.set_msp_serial(this);
 }
 
 /*!
-Called from MSP_Task::loop()
+Called from MspTask::loop()
 */
-void MSP_Serial::processInput()
+void MspSerial::process_input()
 {
-    while (_mspSerialPort.isDataAvailable()) {
-        const uint8_t inChar = _mspSerialPort.readByte();
-        _mspStream.putChar(inChar, nullptr); // This will invoke MSP_Serial::sendFrame(), when a completed frame is received
+    while (_msp_serial_port.is_data_available()) {
+        const uint8_t inChar = _msp_serial_port.read_byte();
+        _msp_stream.put_char(inChar, nullptr); // This will invoke MspSerial::send_frame(), when a completed frame is received
     }
 }
 
 /*!
-Called from  MSP_Stream::serialEncode() which is called from MSP_Stream::processReceivedCommand() which is called from MSP_Stream::putChar()
+Called from  MspStream::serial_encode() which is called from MspStream::process_received_command() which is called from MspStream::put_char()
 */
-size_t MSP_Serial::sendFrame(const uint8_t* header, size_t headerLen, const uint8_t* data, size_t dataLen, const uint8_t* crc, size_t crcLen)
+size_t MspSerial::send_frame(const uint8_t* header, size_t header_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len)
 {
-    const size_t totalFrameLength = headerLen + dataLen + crcLen;
+    const size_t total_frame_length = header_len + data_len + crc_len;
 
     // We are allowed to send out the response if
     //  a) TX buffer is completely empty (we are talking to well-behaving party that follows request-response scheduling;
     //     this allows us to transmit jumbo frames bigger than TX buffer (serialWriteBuf will block, but for jumbo frames we don't care)
     //  b) Response fits into TX buffer
-    //if (!isSerialTransmitBufferEmpty(_serialPort) && ((int)serialTxBytesFree(_serialPort) < totalFrameLength)) {
+    //if (!isSerialTransmitBufferEmpty(_serialPort) && ((int)serialTxBytesFree(_serialPort) < total_frame_length)) {
     //    return 0;
     //}
     // buffer size is 64 bytes on arduino
-    // buffer empty if Serial.availableForWrite() >= SERIAL_TX_BUFFER_SIZE - 1
-    // if (totalFrameLength <= Serial.availableForWrite())
+    // buffer empty if Serial.available_for_write() >= SERIAL_TX_BUFFER_SIZE - 1
+    // if (total_frame_length <= Serial.available_for_write())
 
 
     // write the header
-    while (_mspSerialPort.availableForWrite() < headerLen) {
+    while (_msp_serial_port.available_for_write() < header_len) {
         yield();
     }
-    _mspSerialPort.write(header, headerLen);
+    _msp_serial_port.write(header, header_len);
 
     // write the data
 
-    StreamBufReader sbuf(data, dataLen);
+    StreamBufReader sbuf(data, data_len);
     while (sbuf.bytes_remaining() > 0) {
-        const size_t available = _mspSerialPort.availableForWrite();
+        const size_t available = _msp_serial_port.available_for_write();
         const size_t writeLen = std::min(available, static_cast<size_t>(sbuf.bytes_remaining()));
-        _mspSerialPort.write(sbuf.ptr(), writeLen);
+        _msp_serial_port.write(sbuf.ptr(), writeLen);
         sbuf.advance(writeLen);
         yield();
     }
 
     // write the crc
-    while (_mspSerialPort.availableForWrite() < crcLen) {
+    while (_msp_serial_port.available_for_write() < crc_len) {
         yield();
     }
-    _mspSerialPort.write(crc, crcLen);
+    _msp_serial_port.write(crc, crc_len);
 
-    return totalFrameLength;
+    return total_frame_length;
 }

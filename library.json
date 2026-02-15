@@ -24,5 +24,5 @@
     "version": "0.0.17",
     "frameworks": "*",
     "platforms": "*",
-    "headers": [ "MSP_Base.h", "MSP_Protocol.h", "MSP_Serial.h", "MSP_Stream.h", "MSP_Task.h" ]
+    "headers": [ "msp_base.h", "msp_protocol.h", "msp_protocol_base.h", "msp_serial.h", "msp_serial_port_base.h", "msp_stream.h", "msp_task.h" ]
 }

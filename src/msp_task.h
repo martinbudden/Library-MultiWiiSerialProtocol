@@ -22,21 +22,21 @@
 
 #include <TaskBase.h>
 
-class MSP_Serial;
+class MspSerial;
 
 
-class MSP_Task : public TaskBase {
+class MspTask : public TaskBase {
 public:
-    MSP_Task(uint32_t taskIntervalMicroseconds, MSP_Serial& mspSerial);
+    MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial);
 public:
-    static MSP_Task* createTask(task_info_t& taskInfo, MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds);
-    static MSP_Task* createTask(MSP_Serial& mspSerial, uint8_t priority, uint32_t core, uint32_t taskIntervalMicroseconds);
+    static MspTask* create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
+    static MspTask* create_task(MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
 private:
     // class is not copyable or moveable
-    MSP_Task(const MSP_Task&) = delete;
-    MSP_Task& operator=(const MSP_Task&) = delete;
-    MSP_Task(MSP_Task&&) = delete;
-    MSP_Task& operator=(MSP_Task&&) = delete;
+    MspTask(const MspTask&) = delete;
+    MspTask& operator=(const MspTask&) = delete;
+    MspTask(MspTask&&) = delete;
+    MspTask& operator=(MspTask&&) = delete;
 public:
     [[noreturn]] static void Task(void* arg);
     void loop();
@@ -44,5 +44,5 @@ private:
     [[noreturn]] void task();
 private:
     uint32_t _taskIntervalMilliseconds;
-    MSP_Serial& _mspSerial;
+    MspSerial& _msp_serial;
 };

@@ -53,10 +53,10 @@
 Abstract base class that virtualizes the required functions of a serial port
 so that the MSP library does not need to depend on an actual serial port.
 */
-class MSP_SerialPortBase {
+class MspSerialPortBase {
 public:
-    virtual bool isDataAvailable() const;
-    virtual uint8_t readByte();
-    virtual size_t availableForWrite() const;
+    virtual bool is_data_available() const;
+    virtual uint8_t read_byte();
+    virtual size_t available_for_write() const;
     virtual size_t write(const uint8_t* buf, size_t len);
 };

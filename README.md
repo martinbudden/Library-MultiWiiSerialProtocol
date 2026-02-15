@@ -16,14 +16,14 @@ as per the GNU GPL "keep intact all notices” requirement.
 
 ```mermaid
 classDiagram
-    class MSP_Serial {
-        virtual int sendFrame() = 0
-        virtual void processInput() = 0;
+    class MspSerial {
+        virtual int send_frame() = 0
+        virtual void process_input() = 0;
     }
-    class MSP_Base {
+    class MspBase {
     }
     class MSP_Stream {
     }
-    MSP_Stream *-- MSP_Base
-    MSP_Stream o-- MSP_Serial
+    MSP_Stream *-- MspBase
+    MSP_Stream o-- MspSerial
 ```
