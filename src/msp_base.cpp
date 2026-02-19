@@ -54,8 +54,9 @@ enum defaultsType_e {
 };
 #endif
 
-void MspBase::reboot_fn(serialPort_t* serialPort)
+void MspBase::reboot_fn(msp_parameter_group_t& pg, serialPort_t* serialPort)
 {
+    (void)pg;
     (void)serialPort;
 }
 
@@ -178,7 +179,8 @@ msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const
     return ret;
 }
 
-void MspBase::process_reply(const msp_packet_t& reply)
+void MspBase::process_reply(msp_parameter_group_t& pg, const msp_packet_t& reply)
 {
+    (void)pg;
     (void)reply;
 }

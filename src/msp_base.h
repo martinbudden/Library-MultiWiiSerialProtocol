@@ -137,7 +137,7 @@ public:
     MspBase() = default;
     virtual ~MspBase() = default;
 
-    virtual void reboot_fn(serialPort_t* serialPort);
+    virtual void reboot_fn(msp_parameter_group_t& pg, serialPort_t* serialPort);
 
     virtual msp_result_e set_passthrough_command(msp_parameter_group_t& pg, StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
 
@@ -145,7 +145,7 @@ public:
 
     virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 
-    virtual void process_reply(const msp_packet_t& reply);
+    virtual void process_reply(msp_parameter_group_t& pg, const msp_packet_t& reply);
 
     virtual msp_result_e process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 protected:

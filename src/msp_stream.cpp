@@ -259,12 +259,13 @@ void MspStream::process_received_packet_data(uint8_t c) // NOLINT(readability-fu
     }
 }
 
-void MspStream::process_pending_request()
+void MspStream::process_pending_request(msp_parameter_group_t& pg)
 {
     // If no request is pending or 100ms guard time has not elapsed - do nothing
     //if ((_pending_request == MSP_PENDING_NONE) || (cmp32(millis(), _lastActivityMs) < 100)) {
     //    return;
     //}
+    (void)pg;
 
     switch(_pending_request) {
     case MSP_PENDING_BOOTLOADER_ROM:
@@ -510,7 +511,7 @@ MspBase::postProcessFnPtr MspStream::process_received_command(msp_parameter_grou
     return mspPostProcessFn;
 }
 
-void MspStream::process_received_reply()
+void MspStream::process_received_reply(msp_parameter_group_t& pg)
 {
     const msp_packet_t reply = {
         .payload = StreamBufWriter(&_in_buf[0], _data_size),
@@ -522,7 +523,7 @@ void MspStream::process_received_reply()
 
     //!!_msp_base.*process_replyFn(reply);
     //(void)process_replyFn;
-    _msp_base.process_reply(reply);
+    _msp_base.process_reply(pg, reply);
 }
 
 /*!
@@ -540,7 +541,7 @@ bool MspStream::put_char(msp_parameter_group_t& pg, uint8_t c, msp_stream_packet
         if (_packet_type == MSP_PACKET_COMMAND) {
             process_received_command(pg, pwh); // eventually calls processWriteCommand or processReadCommand
         } else if (_packet_type == MSP_PACKET_REPLY) {
-            process_received_reply(); // by default does nothing
+            process_received_reply(pg); // by default does nothing
         }
 
         // we've processed the command, so return to idle state

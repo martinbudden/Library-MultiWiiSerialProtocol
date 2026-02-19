@@ -15,11 +15,11 @@ enum { SERIAL_RX = 11, SERIAL_TX = 12 };
 static MspStream* msp_stream_ptr {};
 static MspSerial* msp_serial_ptr {};
 
-class MspSerial : public MspSerial {
+class MspSerialExample : public MspSerial {
 public:
-    MspSerial(MspStream& mspStream, SoftwareSerial& msp_serial) : _msp_stream(mspStream), _msp_serial(msp_serial) {}
+    MspSerialExample(MspStream& mspStream, SoftwareSerial& msp_serial) : _msp_stream(mspStream), _msp_serial(msp_serial) {}
     virtual size_t send_frame(const uint8_t* hdr, size_t hdr_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len) override;
-    virtual void process_input() override;
+    virtual void process_input(msp_parameter_group_t& pg) override;
 private:
     MspStream& _msp_stream;
     SoftwareSerial& _msp_serial;
@@ -41,7 +41,7 @@ void setup()
 
     static MspBase msp;
     static MspStream mspStream(msp);
-    static MspSerial msp_serial(mspStream, softwareSerial);
+    static MspSerialExample msp_serial(mspStream, softwareSerial);
 
     msp_stream_ptr = &mspStream;
 
@@ -64,7 +64,7 @@ void loop()
 }
 
 
-void MspSerial::process_input()
+void MspSerial::process_input(msp_parameter_group_t& pg)
 {
     while (_msp_serial.available() > 0) {
         const uint8_t inChar = _msp_serial.read();

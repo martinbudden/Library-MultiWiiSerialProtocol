@@ -87,7 +87,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
         _tickCountPrevious = tickCount;
 
         if (_tickCountDelta > 0) { // guard against the case of this while loop executing twice on the same tick interval
-            _msp_serial.process_input();
+            _msp_serial.process_input(_parameter_group);
         }
     }
 #else
