@@ -24,13 +24,15 @@
 
 class MspSerial;
 
+struct msp_parameter_group_t;
+
 
 class MspTask : public TaskBase {
 public:
-    MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial);
+    MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial, msp_parameter_group_t& parameter_group);
 public:
-    static MspTask* create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
-    static MspTask* create_task(MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
+    static MspTask* create_task(task_info_t& taskInfo, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
+    static MspTask* create_task(MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
 private:
     // class is not copyable or moveable
     MspTask(const MspTask&) = delete;
@@ -45,4 +47,5 @@ private:
 private:
     uint32_t _taskIntervalMilliseconds;
     MspSerial& _msp_serial;
+    msp_parameter_group_t& _parameter_group;
 };

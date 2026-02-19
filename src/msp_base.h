@@ -48,6 +48,7 @@
 
 #include <stream_buf_reader.h>
 
+struct msp_parameter_group_t;
 struct serialPort_t;
 
 enum {
@@ -138,16 +139,15 @@ public:
 
     virtual void reboot_fn(serialPort_t* serialPort);
 
-    virtual msp_result_e set_passthrough_command(StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
+    virtual msp_result_e set_passthrough_command(msp_parameter_group_t& pg, StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
 
-    virtual msp_result_e process_get_command(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
-    virtual msp_result_e process_get_command(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
+    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
 
-    virtual msp_result_e process_set_command(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 
     virtual void process_reply(const msp_packet_t& reply);
 
-    virtual msp_result_e process_command(const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual msp_result_e process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
 protected:
     uint8_t _passthrough_mode {};
     uint8_t _passthrough_argument {};

@@ -50,7 +50,7 @@
 #include <array>
 
 class MspSerial;
-
+struct msp_parameter_group_t;
 
 enum msp_stream_state_e {
     STREAM_IDLE,
@@ -148,16 +148,16 @@ public:
     msp_packet_type_e get_packet_type() const { return _packet_type; }
 
     void process_received_packet_data(uint8_t c);
-    MspBase::postProcessFnPtr process_received_command(msp_stream_packet_with_header_t* pwh);
+    MspBase::postProcessFnPtr process_received_command(msp_parameter_group_t& pg, msp_stream_packet_with_header_t* pwh);
     void process_received_reply();
     void process_pending_request();
     msp_stream_packet_with_header_t serial_encode(const msp_const_packet_t& packet, msp_version_e mspVersion);
     msp_stream_packet_with_header_t serial_encode_msp_v1(uint8_t command, const uint8_t* buf, uint8_t len);
     //bool put_char(uint8_t c, MspBase::process_commandFnPtr process_commandFn, MspBase::process_replyFnPtr process_replyFn, packet_with_header_t& pwh);
-    bool put_char(uint8_t c, msp_stream_packet_with_header_t* pwh);
+    bool put_char(msp_parameter_group_t& pg, uint8_t c, msp_stream_packet_with_header_t* pwh);
 
 public: // for testing
-    msp_const_packet_t process_in_buf();
+    msp_const_packet_t process_in_buf(msp_parameter_group_t& pg);
     msp_stream_state_e get_stream_state() const { return _stream_state; }
     uint16_t get_data_size() const { return _data_size; }
     uint8_t get_in_buf(size_t index) { return _in_buf[index]; }

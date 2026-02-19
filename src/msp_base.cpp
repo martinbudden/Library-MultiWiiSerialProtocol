@@ -59,8 +59,9 @@ void MspBase::reboot_fn(serialPort_t* serialPort)
     (void)serialPort;
 }
 
-msp_result_e MspBase::set_passthrough_command(StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::set_passthrough_command(msp_parameter_group_t& pg, StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
+    (void)pg;
     (void)postProcessFn;
 
     const size_t dataSize = src.bytes_remaining();
@@ -122,8 +123,10 @@ msp_result_e MspBase::set_passthrough_command(StreamBufWriter& dst, StreamBufRea
     return MSP_RESULT_ACK;
 }
 
-msp_result_e MspBase::process_get_command(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
+    (void)pg;
+    (void)src;
     (void)srcDesc;
     (void)postProcessFn;
 
@@ -139,14 +142,9 @@ msp_result_e MspBase::process_get_command(int16_t cmdMSP, StreamBufWriter& dst, 
     return MSP_RESULT_ACK;
 }
 
-msp_result_e MspBase::process_get_command(int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
 {
-    (void)src;
-    return process_get_command(cmdMSP, dst, srcDesc, postProcessFn);
-}
-
-msp_result_e MspBase::process_set_command(int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
-{
+    (void)pg;
     (void)cmdMSP;
     (void)src;
     (void)srcDesc;
@@ -156,7 +154,7 @@ msp_result_e MspBase::process_set_command(int16_t cmdMSP, StreamBufReader& src, 
 /*
 Returns MSP_RESULT_ACK, MSP_RESULT_ERROR or MSP_RESULT_NO_REPLY
 */
-msp_result_e MspBase::process_command(const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
+msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
 {
     StreamBufWriter& dst = reply.payload;
     StreamBufReader src(cmd.payload);
@@ -164,16 +162,16 @@ msp_result_e MspBase::process_command(const msp_const_packet_t& cmd, msp_packet_
     // initialize reply by default
     reply.cmd = cmd.cmd;
 
-    msp_result_e ret = process_get_command(cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
+    msp_result_e ret = process_get_set_command(pg, cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
     if (ret == MSP_RESULT_CMD_UNKNOWN) {
         if (cmdMSP == MSP_BASE_SET_PASSTHROUGH) {
-            ret = set_passthrough_command(dst, src, postProcessFn);
+            ret = set_passthrough_command(pg, dst, src, postProcessFn);
 #ifdef USE_FLASHFS
         } else if (cmdMSP == MSP_DATAFLASH_READ) {
             ret = mspFcDataFlashReadCommand(dst, src);
 #endif
         } else {
-            ret = process_set_command(cmdMSP, src, srcDesc, postProcessFn); // chains to processReadCommand
+            ret = process_set_command(pg, cmdMSP, src, srcDesc, postProcessFn); // chains to processReadCommand
         }
     }
     reply.result = ret;

@@ -40,18 +40,18 @@
 #endif
 
 
-MspTask* MspTask::create_task(MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
     task_info_t taskInfo {}; // NOLINT(cppcoreguidelines-init-variables) false positive
-    return create_task(taskInfo, msp_serial, priority, core, task_interval_microseconds);
+    return create_task(taskInfo, msp_serial, parameter_group, priority, core, task_interval_microseconds);
 }
 
-MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
-    static MspTask mspTask(task_interval_microseconds, msp_serial);
+    static MspTask mspTask(task_interval_microseconds, msp_serial, parameter_group);
 
     // Note that task parameters must not be on the stack, since they are used when the task is started, which is after this function returns.
-    static TaskBase::parameters_t taskParameters { // NOLINT(misc-const-correctness) false positive
+    static TaskBase::parameters_t task_parameters { // NOLINT(misc-const-correctness) false positive
         .task = &mspTask
     };
 #if !defined(MSP_TASK_STACK_DEPTH_BYTES)
@@ -82,7 +82,7 @@ MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint
         MspTask::Task,
         taskInfo.name,
         taskInfo.stackDepthBytes / sizeof(StackType_t),
-        &taskParameters,
+        &task_parameters,
         taskInfo.priority,
         &stack[0],
         &taskBuffer,
@@ -94,7 +94,7 @@ MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint
         MspTask::Task,
         taskInfo.name,
         taskInfo.stackDepthBytes / sizeof(StackType_t),
-        &taskParameters,
+        &task_parameters,
         taskInfo.priority,
         &stack[0],
         &taskBuffer,
@@ -106,7 +106,7 @@ MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint
         MspTask::Task,
         taskInfo.name,
         taskInfo.stackDepthBytes / sizeof(StackType_t),
-        &taskParameters,
+        &task_parameters,
         taskInfo.priority,
         &stack[0],
         &taskBuffer
@@ -115,7 +115,7 @@ MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, uint
     // vTaskCoreAffinitySet(taskInfo.taskHandle, taskInfo.core);
 #endif
 #else
-    (void)taskParameters;
+    (void)task_parameters;
 #endif // FRAMEWORK_USE_FREERTOS
 
     return &mspTask;

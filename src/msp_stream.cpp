@@ -428,7 +428,7 @@ msp_stream_packet_with_header_t MspStream::serial_encode_msp_v1(uint8_t command,
 For test code
 Called when the state machine has assembled a packet into _in_buf.
 */
-msp_const_packet_t MspStream::process_in_buf()
+msp_const_packet_t MspStream::process_in_buf(msp_parameter_group_t& pg)
 {
     msp_const_packet_t command = {
         .payload = StreamBufReader(&_in_buf[0], _data_size),
@@ -447,7 +447,7 @@ msp_const_packet_t MspStream::process_in_buf()
     };
 
     MspBase::postProcessFnPtr mspPostProcessFn = nullptr;
-    const msp_result_e status = _msp_base.process_command(command, reply, _descriptor, &mspPostProcessFn);
+    const msp_result_e status = _msp_base.process_command(pg, command, reply, _descriptor, &mspPostProcessFn);
     (void)status;
     reply.payload.switch_to_reader(); // change streambuf direction
 
@@ -466,7 +466,7 @@ Called when the state machine has assembled a packet into _in_buf.
 
 pwh is optional parameter for use by test code.
 */
-MspBase::postProcessFnPtr MspStream::process_received_command(msp_stream_packet_with_header_t* pwh)
+MspBase::postProcessFnPtr MspStream::process_received_command(msp_parameter_group_t& pg, msp_stream_packet_with_header_t* pwh)
 {
     const msp_const_packet_t command = {
         .payload = StreamBufReader(&_in_buf[0], _data_size),
@@ -488,7 +488,7 @@ MspBase::postProcessFnPtr MspStream::process_received_command(msp_stream_packet_
 
     //!!const msp_result_e status = _msp_base.*mspProcessCommandFn(command, reply, _descriptor, &mspPostProcessFn);
     //(void)mspProcessCommandFn;
-    const msp_result_e status = _msp_base.process_command(command, reply, _descriptor, &mspPostProcessFn);
+    const msp_result_e status = _msp_base.process_command(pg, command, reply, _descriptor, &mspPostProcessFn);
 
     msp_const_packet_t replyConst = {
         .payload = StreamBufReader(reply.payload),
@@ -528,7 +528,7 @@ void MspStream::process_received_reply()
 /*!
 pwh is optional return value for use by test code.
 */
-bool MspStream::put_char(uint8_t c, msp_stream_packet_with_header_t* pwh)
+bool MspStream::put_char(msp_parameter_group_t& pg, uint8_t c, msp_stream_packet_with_header_t* pwh)
 {
     bool ret = false;
 
@@ -538,7 +538,7 @@ bool MspStream::put_char(uint8_t c, msp_stream_packet_with_header_t* pwh)
     if (_packet_state == MSP_COMMAND_RECEIVED) {
         ret = true;
         if (_packet_type == MSP_PACKET_COMMAND) {
-            process_received_command(pwh); // eventually calls processWriteCommand or processReadCommand
+            process_received_command(pg, pwh); // eventually calls processWriteCommand or processReadCommand
         } else if (_packet_type == MSP_PACKET_REPLY) {
             process_received_reply(); // by default does nothing
         }

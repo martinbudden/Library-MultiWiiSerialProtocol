@@ -38,10 +38,11 @@
 #endif
 
 
-MspTask::MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial) :
+MspTask::MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial, msp_parameter_group_t& parameter_group) :
     TaskBase(task_interval_microseconds),
     _taskIntervalMilliseconds(task_interval_microseconds/1000), // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
-    _msp_serial(msp_serial)
+    _msp_serial(msp_serial),
+    _parameter_group(parameter_group)
 {
 }
 
@@ -55,7 +56,7 @@ void MspTask::loop()
 
     if (_tickCountDelta >= _taskIntervalMilliseconds) { // if _task_interval_microseconds has passed, then run the update
         _tickCountPrevious = tickCount;
-        _msp_serial.process_input();
+        _msp_serial.process_input(_parameter_group);
     }
 }
 
