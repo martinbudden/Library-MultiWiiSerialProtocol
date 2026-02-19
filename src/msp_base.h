@@ -131,7 +131,7 @@ public:
 
 public:
     // post process function pointer
-    typedef void (MspBase::*postProcessFnPtr)(serialPort_t* port); // msp post process function, used for gracefully handling reboots, etc.
+    typedef void (MspBase::*postProcessFnPtr)(msp_parameter_group_t& pg, serialPort_t* port); // msp post process function, used for gracefully handling reboots, etc.
 
 public:
     MspBase() = default;
