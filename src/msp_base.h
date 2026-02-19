@@ -127,29 +127,15 @@ public:
 
     static constexpr uint8_t PASSTHROUGH_ESC_4WAY = 0xFF;
 
-    typedef int descriptor_t;
-
-public:
-    // post process function pointer
-    typedef void (MspBase::*postProcessFnPtr)(msp_parameter_group_t& pg, serialPort_t* port); // msp post process function, used for gracefully handling reboots, etc.
-
 public:
     MspBase() = default;
     virtual ~MspBase() = default;
 
-    virtual void reboot_fn(msp_parameter_group_t& pg, serialPort_t* serialPort);
+    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, StreamBufReader& src);
 
-    virtual msp_result_e set_passthrough_command(msp_parameter_group_t& pg, StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn);
-
-    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src);
-
-    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
+    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src);
 
     virtual void process_reply(msp_parameter_group_t& pg, const msp_packet_t& reply);
 
-    virtual msp_result_e process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn);
-protected:
-    uint8_t _passthrough_mode {};
-    uint8_t _passthrough_argument {};
-    uint8_t _reboot_mode {};
+    virtual msp_result_e process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply);
 };

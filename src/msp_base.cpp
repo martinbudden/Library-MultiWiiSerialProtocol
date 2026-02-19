@@ -45,7 +45,7 @@
  */
 
 #include "msp_base.h"
-#include "msp_protocol_base.h"
+#include "msp_protocol.h"
 
 #if false
 enum defaultsType_e {
@@ -54,108 +54,34 @@ enum defaultsType_e {
 };
 #endif
 
-void MspBase::reboot_fn(msp_parameter_group_t& pg, serialPort_t* serialPort)
-{
-    (void)pg;
-    (void)serialPort;
-}
-
-msp_result_e MspBase::set_passthrough_command(msp_parameter_group_t& pg, StreamBufWriter& dst, StreamBufReader& src, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
-{
-    (void)pg;
-    (void)postProcessFn;
-
-    const size_t dataSize = src.bytes_remaining();
-    if (dataSize == 0) {
-        // Legacy format
-        _passthrough_mode = PASSTHROUGH_ESC_4WAY;
-    } else {
-        _passthrough_mode = src.read_u8();
-        _passthrough_argument = src.read_u8();
-    }
-
-    switch (_passthrough_mode) {
-    case PASSTHROUGH_SERIAL_ID:
-    case PASSTHROUGH_SERIAL_FUNCTION_ID:
-#if false
-        if (findPassthroughSerialPort()) {
-            if (postProcessFn) {
-                *postProcessFn = serialPassthroughFn;
-            }
-            dst.write_u8(1);
-        } else {
-            dst.write_u8(0);
-        }
-#endif
-        break;
-#ifdef USE_SERIAL_4WAY_BLHELI_INTERFACE
-    case MSP_PASSTHROUGH_ESC_4WAY:
-        // get channel number
-        // switch all motor lines HI
-        // reply with the count of ESC found
-        dst.write_u8(esc4wayInit());
-
-        if (mspPostProcessFn) {
-            *mspPostProcessFn = esc4wayProcess;
-        }
-        break;
-
-#ifdef USE_ESCSERIAL
-    case MSP_PASSTHROUGH_ESC_SIMONK:
-    case MSP_PASSTHROUGH_ESC_BLHELI:
-    case MSP_PASSTHROUGH_ESC_KISS:
-    case MSP_PASSTHROUGH_ESC_KISSALL:
-    case MSP_PASSTHROUGH_ESC_CASTLE:
-        if (mspPassthroughArgument < getMotorCount() || (mspPassthroughMode == MSP_PASSTHROUGH_ESC_KISS && mspPassthroughArgument == ALL_MOTORS)) {
-            dst.write_u8(1);
-
-            if (mspPostProcessFn) {
-                *mspPostProcessFn = mspEscPassthroughFn;
-            }
-
-            break;
-        }
-        FALLTHROUGH;
-#endif // USE_ESCSERIAL
-#endif // USE_SERIAL_4WAY_BLHELI_INTERFACE
-    default:
-        dst.write_u8(0);
-    }
-    return MSP_RESULT_ACK;
-}
-
-msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)src;
-    (void)srcDesc;
-    (void)postProcessFn;
 
     switch (cmdMSP) { // NOLINT(hicpp-multiway-paths-covered)
-    case MSP_BASE_API_VERSION:
-        dst.write_u8(MSP_BASE_PROTOCOL_VERSION);
-        dst.write_u8(MSP_BASE_API_VERSION_MAJOR);
-        dst.write_u8(MSP_BASE_API_VERSION_MINOR);
-        break;
+    case MSP_API_VERSION:
+        dst.write_u8(MSP_PROTOCOL_VERSION);
+        dst.write_u8(MSP_API_VERSION_MAJOR);
+        dst.write_u8(MSP_API_VERSION_MINOR);
+        return MSP_RESULT_ACK;
     default:
         return MSP_RESULT_CMD_UNKNOWN;
     }
-    return MSP_RESULT_ACK;
 }
 
-msp_result_e MspBase::process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src, descriptor_t srcDesc, postProcessFnPtr* postProcessFn) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)cmdMSP;
     (void)src;
-    (void)srcDesc;
-    (void)postProcessFn;
+
     return MSP_RESULT_CMD_UNKNOWN;
 }
 /*
 Returns MSP_RESULT_ACK, MSP_RESULT_ERROR or MSP_RESULT_NO_REPLY
 */
-msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply, descriptor_t srcDesc, postProcessFnPtr* postProcessFn)
+msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply)
 {
     StreamBufWriter& dst = reply.payload;
     StreamBufReader src(cmd.payload);
@@ -163,17 +89,9 @@ msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const
     // initialize reply by default
     reply.cmd = cmd.cmd;
 
-    msp_result_e ret = process_get_set_command(pg, cmdMSP, dst, srcDesc, postProcessFn, src); // NOLINT(cppcoreguidelines-init-variables) false positive
+    msp_result_e ret = process_get_set_command(pg, cmdMSP, dst, src); // NOLINT(cppcoreguidelines-init-variables) false positive
     if (ret == MSP_RESULT_CMD_UNKNOWN) {
-        if (cmdMSP == MSP_BASE_SET_PASSTHROUGH) {
-            ret = set_passthrough_command(pg, dst, src, postProcessFn);
-#ifdef USE_FLASHFS
-        } else if (cmdMSP == MSP_DATAFLASH_READ) {
-            ret = mspFcDataFlashReadCommand(dst, src);
-#endif
-        } else {
-            ret = process_set_command(pg, cmdMSP, src, srcDesc, postProcessFn); // chains to processReadCommand
-        }
+        ret = process_set_command(pg, cmdMSP, src); // chains to processReadCommand
     }
     reply.result = ret;
     return ret;

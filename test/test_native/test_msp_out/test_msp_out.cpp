@@ -1,4 +1,4 @@
-#include <msp_protocol_base.h>
+#include <msp_protocol.h>
 #include <msp_serial.h>
 #include <msp_serial_port_base.h>
 #include <msp_stream.h>
@@ -19,21 +19,19 @@ class MSP_Test : public MspBase {
 public:
     enum { MSP_ATTITUDE = 108 };
 public:
-    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src) override;
+    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, StreamBufReader& src) override;
 };
 
-msp_result_e MSP_Test::process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, descriptor_t srcDesc, postProcessFnPtr* postProcessFn, StreamBufReader& src)
+msp_result_e MSP_Test::process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, StreamBufReader& src)
 {
     (void)pg;
-    (void)srcDesc;
-    (void)postProcessFn;
     (void)src;
 
     switch (cmdMSP) {
-    case MSP_BASE_API_VERSION:
-        dst.write_u8(MSP_BASE_PROTOCOL_VERSION);
-        dst.write_u8(MSP_BASE_API_VERSION_MAJOR);
-        dst.write_u8(MSP_BASE_API_VERSION_MINOR);
+    case MSP_API_VERSION:
+        dst.write_u8(MSP_PROTOCOL_VERSION);
+        dst.write_u8(MSP_API_VERSION_MAJOR);
+        dst.write_u8(MSP_API_VERSION_MINOR);
         break;
 
     case MSP_ATTITUDE:
@@ -95,11 +93,11 @@ size_t MspSerialTest::send_frame(const uint8_t* hdr, size_t hdr_len, const uint8
     TEST_ASSERT_EQUAL('M', hdr[1]);
     TEST_ASSERT_EQUAL('>', hdr[2]);
     TEST_ASSERT_EQUAL(5, hdr_len);
-    if (hdr[4] == MSP_BASE_API_VERSION) {
+    if (hdr[4] == MSP_API_VERSION) {
         TEST_ASSERT_EQUAL(3, data_len);
-        TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, data[0]);
-        TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, data[1]);
-        TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, data[2]);
+        TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, data[0]);
+        TEST_ASSERT_EQUAL(MSP_API_VERSION_MAJOR, data[1]);
+        TEST_ASSERT_EQUAL(MSP_API_VERSION_MINOR, data[2]);
         TEST_ASSERT_EQUAL(1, crc_len);
         static constexpr uint8_t replyChecksum = 44;
         TEST_ASSERT_EQUAL(replyChecksum, *crc);
@@ -138,12 +136,12 @@ void test_msp_out()
     std::array<uint8_t, 16> src_buf;
     StreamBufReader src(&src_buf[0], sizeof(src_buf)); // NOLINT(cppcoreguidelines-init-variables)
 
-    msp.process_get_set_command(pg, MSP_BASE_API_VERSION, dst, 0, nullptr, src);
+    msp.process_get_set_command(pg, MSP_API_VERSION, dst, src);
     TEST_ASSERT_EQUAL(sizeof(dst_buf) - 3, dst.bytes_remaining());
     dst.switch_to_reader();
-    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, dst.read_u8());
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, dst.read_u8());
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, dst.read_u8());
+    TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, dst.read_u8());
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MAJOR, dst.read_u8());
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MINOR, dst.read_u8());
 }
 
 void test_putchar()
@@ -170,7 +168,7 @@ void test_putchar()
     TEST_ASSERT_EQUAL(1, mspStream.get_checksum1());
     TEST_ASSERT_EQUAL(MSP_HEADER_V1, mspStream.get_packet_state());
 
-    mspStream.put_char(pg, MSP_BASE_API_VERSION, &pwh); // command
+    mspStream.put_char(pg, MSP_API_VERSION, &pwh); // command
     TEST_ASSERT_EQUAL(0, mspStream.get_checksum1());
     TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
 
@@ -190,14 +188,14 @@ void test_putchar()
     TEST_ASSERT_EQUAL('M', pwh.hdr_buf[1]);
     TEST_ASSERT_EQUAL('>', pwh.hdr_buf[2]);
     TEST_ASSERT_EQUAL(3, pwh.hdr_buf[3]);
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION, pwh.hdr_buf[4]);
+    TEST_ASSERT_EQUAL(MSP_API_VERSION, pwh.hdr_buf[4]);
     TEST_ASSERT_EQUAL(5, pwh.hdr_len);
     static constexpr uint8_t replyChecksum = 44;
     TEST_ASSERT_EQUAL(replyChecksum, pwh.checksum);
     TEST_ASSERT_EQUAL(3, pwh.data_len);
-    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, *pwh.data_ptr);
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, *(pwh.data_ptr+1));
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, *(pwh.data_ptr+2));
+    TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, *pwh.data_ptr);
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MAJOR, *(pwh.data_ptr+1));
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MINOR, *(pwh.data_ptr+2));
 }
 
 void test_putchar_array_stream()
@@ -214,7 +212,7 @@ void test_putchar_array_stream()
     const uint8_t payload = 19;
     const uint8_t checksum = payload; // for 1-byte payload, checksum is payload
     const std::array<uint8_t, 6> inStream = {
-        'M', '<', payloadSize, MSP_BASE_API_VERSION, payload, checksum,
+        'M', '<', payloadSize, MSP_API_VERSION, payload, checksum,
     };
 
     bool complete = mspStream.put_char(pg, inStream[0], &pwh);
@@ -254,9 +252,9 @@ void test_putchar_array_stream()
     static constexpr uint8_t replyChecksum = 44;
     TEST_ASSERT_EQUAL(replyChecksum, pwh.checksum);
     TEST_ASSERT_EQUAL(3, pwh.data_len);
-    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, *pwh.data_ptr);
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, *(pwh.data_ptr+1));
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, *(pwh.data_ptr+2));
+    TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, *pwh.data_ptr);
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MAJOR, *(pwh.data_ptr+1));
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MINOR, *(pwh.data_ptr+2));
 }
 
 void test_putchar_array_stream_no_payload()
@@ -268,7 +266,7 @@ void test_putchar_array_stream_no_payload()
     mspStream.set_packet_state(MSP_IDLE);
 
     const uint8_t payloadSize = 0;
-    const uint8_t type = MSP_BASE_API_VERSION;
+    const uint8_t type = MSP_API_VERSION;
     const uint8_t checksum = type; // for 0-byte payload, checksum is type
     const std::array<uint8_t, 5> inStream = {
         'M', '<', payloadSize, type, checksum,
@@ -307,9 +305,9 @@ void test_putchar_array_stream_no_payload()
     static constexpr uint8_t replyChecksum = 44;
     TEST_ASSERT_EQUAL(replyChecksum, pwh.checksum);
     TEST_ASSERT_EQUAL(3, pwh.data_len);
-    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, *pwh.data_ptr);
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, *(pwh.data_ptr+1));
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, *(pwh.data_ptr+2));
+    TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, *pwh.data_ptr);
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MAJOR, *(pwh.data_ptr+1));
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MINOR, *(pwh.data_ptr+2));
 }
 
 void test_putchar_array_stream_loop()
@@ -323,7 +321,7 @@ void test_putchar_array_stream_loop()
     msp_stream_packet_with_header_t pwh;
 
     const uint8_t payloadSize = 0;
-    const uint8_t type = MSP_BASE_API_VERSION;
+    const uint8_t type = MSP_API_VERSION;
     const uint8_t checksum = type; // for 0-byte payload, checksum is type
     const std::array<uint8_t, 6> inStream = {
         '$', 'M', '<', payloadSize, type, checksum,
@@ -344,14 +342,14 @@ void test_putchar_array_stream_loop()
     TEST_ASSERT_EQUAL('M', pwh.hdr_buf[1]);
     TEST_ASSERT_EQUAL('>', pwh.hdr_buf[2]);
     TEST_ASSERT_EQUAL(3, pwh.hdr_buf[3]);
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION, pwh.hdr_buf[4]);
+    TEST_ASSERT_EQUAL(MSP_API_VERSION, pwh.hdr_buf[4]);
     TEST_ASSERT_EQUAL(5, pwh.hdr_len);
     static constexpr uint8_t replyChecksum = 44;
     TEST_ASSERT_EQUAL(replyChecksum, pwh.checksum);
     TEST_ASSERT_EQUAL(3, pwh.data_len);
-    TEST_ASSERT_EQUAL(MSP_BASE_PROTOCOL_VERSION, *pwh.data_ptr);
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MAJOR, *(pwh.data_ptr+1));
-    TEST_ASSERT_EQUAL(MSP_BASE_API_VERSION_MINOR, *(pwh.data_ptr+2));
+    TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, *pwh.data_ptr);
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MAJOR, *(pwh.data_ptr+1));
+    TEST_ASSERT_EQUAL(MSP_API_VERSION_MINOR, *(pwh.data_ptr+2));
 }
 
 void test_msp_attitude()

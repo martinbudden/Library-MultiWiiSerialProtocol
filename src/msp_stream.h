@@ -148,7 +148,7 @@ public:
     msp_packet_type_e get_packet_type() const { return _packet_type; }
 
     void process_received_packet_data(uint8_t c);
-    MspBase::postProcessFnPtr process_received_command(msp_parameter_group_t& pg, msp_stream_packet_with_header_t* pwh);
+    void process_received_command(msp_parameter_group_t& pg, msp_stream_packet_with_header_t* pwh);
     void process_received_reply(msp_parameter_group_t& pg);
     void process_pending_request(msp_parameter_group_t& pg);
     msp_stream_packet_with_header_t serial_encode(const msp_const_packet_t& packet, msp_version_e mspVersion);
@@ -177,7 +177,6 @@ private:
     msp_packet_state_e _packet_state {};
     msp_packet_type_e _packet_type {};
     msp_version_e _msp_version {};
-    MspBase::descriptor_t _descriptor {};
     uint16_t _cmd_msp {};
     uint16_t _offset {};
     uint16_t _data_size {};

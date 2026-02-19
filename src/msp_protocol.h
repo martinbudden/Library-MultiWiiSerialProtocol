@@ -81,7 +81,7 @@
 
 #pragma once
 
-#include "msp_protocol_base.h"
+#include <cstdint>
 
 /* Protocol numbers used both by the wire format, config system, and
    field setters.
