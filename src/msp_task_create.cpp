@@ -76,7 +76,7 @@ MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp
     assert(std::strlen(task_info.name) < configMAX_TASK_NAME_LEN);
     assert(task_info.priority < configMAX_PRIORITIES);
 
-    static StaticTask_t taskBuffer;
+    static StaticTask_t task_buffer;
 #if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
     task_info.task_handle = xTaskCreateStaticPinnedToCore(
         MspTask::task_static,
@@ -109,7 +109,7 @@ MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp
         &task_parameters,
         task_info.priority,
         &stack[0],
-        &taskBuffer
+        &task_buffer
     );
     assert(task_info.task_handle != nullptr && "Unable to create MSP task");
     // vTaskCoreAffinitySet(task_info.task_handle, task_info.core);
