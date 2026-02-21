@@ -78,8 +78,8 @@ MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp
 
     static StaticTask_t taskBuffer;
 #if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    task_info.taskHandle = xTaskCreateStaticPinnedToCore(
-        MspTask::Task,
+    task_info.task_handle = xTaskCreateStaticPinnedToCore(
+        MspTask::task_static,
         task_info.name,
         task_info.stack_depth_bytes / sizeof(StackType_t),
         &task_parameters,
@@ -88,10 +88,10 @@ MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp
         &task_buffer,
         task_info.core
     );
-    assert(task_info.taskHandle != nullptr && "Unable to create MSP task");
+    assert(task_info.task_handle != nullptr && "Unable to create MSP task");
 #elif defined(FRAMEWORK_RPI_PICO) || defined(FRAMEWORK_ARDUINO_RPI_PICO)
-    task_info.taskHandle = xTaskCreateStaticAffinitySet(
-        MspTask::Task,
+    task_info.task_handle = xTaskCreateStaticAffinitySet(
+        MspTask::task_static,
         task_info.name,
         task_info.stack_depth_bytes / sizeof(StackType_t),
         &task_parameters,
@@ -100,10 +100,10 @@ MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp
         &task_buffer,
         task_info.core
     );
-    assert(task_info.taskHandle != nullptr && "Unable to create MSP task");
+    assert(task_info.task_handle != nullptr && "Unable to create MSP task");
 #else
-    task_info.taskHandle = xTaskCreateStatic(
-        MspTask::Task,
+    task_info.task_handle = xTaskCreateStatic(
+        MspTask::task_static,
         task_info.name,
         task_info.stack_depth_bytes / sizeof(StackType_t),
         &task_parameters,
@@ -111,8 +111,8 @@ MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp
         &stack[0],
         &taskBuffer
     );
-    assert(task_info.taskHandle != nullptr && "Unable to create MSP task");
-    // vTaskCoreAffinitySet(task_info.taskHandle, task_info.core);
+    assert(task_info.task_handle != nullptr && "Unable to create MSP task");
+    // vTaskCoreAffinitySet(task_info.task_handle, task_info.core);
 #endif
 #else
     (void)task_parameters;
