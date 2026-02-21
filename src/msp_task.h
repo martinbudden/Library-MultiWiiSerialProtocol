@@ -20,7 +20,7 @@
 
 #pragma once
 
-#include <TaskBase.h>
+#include <task_base.h>
 
 class MspSerial;
 
@@ -31,7 +31,7 @@ class MspTask : public TaskBase {
 public:
     MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial, msp_parameter_group_t& parameter_group);
 public:
-    static MspTask* create_task(task_info_t& taskInfo, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
+    static MspTask* create_task(task_info_t& task_info, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
     static MspTask* create_task(MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds);
 private:
     // class is not copyable or moveable
@@ -40,12 +40,12 @@ private:
     MspTask(MspTask&&) = delete;
     MspTask& operator=(MspTask&&) = delete;
 public:
-    [[noreturn]] static void Task(void* arg);
+    [[noreturn]] static void task_static(void* arg);
     void loop();
 private:
     [[noreturn]] void task();
 private:
-    uint32_t _taskIntervalMilliseconds;
+    uint32_t _task_interval_milliseconds;
     MspSerial& _msp_serial;
     msp_parameter_group_t& _parameter_group;
 };

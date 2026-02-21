@@ -42,17 +42,17 @@
 
 MspTask* MspTask::create_task(MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
-    task_info_t taskInfo {}; // NOLINT(cppcoreguidelines-init-variables) false positive
-    return create_task(taskInfo, msp_serial, parameter_group, priority, core, task_interval_microseconds);
+    task_info_t task_info {}; // NOLINT(cppcoreguidelines-init-variables) false positive
+    return create_task(task_info, msp_serial, parameter_group, priority, core, task_interval_microseconds);
 }
 
-MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
-    static MspTask mspTask(task_interval_microseconds, msp_serial, parameter_group);
+    static MspTask msp_task(task_interval_microseconds, msp_serial, parameter_group);
 
     // Note that task parameters must not be on the stack, since they are used when the task is started, which is after this function returns.
     static TaskBase::parameters_t task_parameters { // NOLINT(misc-const-correctness) false positive
-        .task = &mspTask
+        .task = &msp_task
     };
 #if !defined(MSP_TASK_STACK_DEPTH_BYTES)
     enum { MSP_TASK_STACK_DEPTH_BYTES = 4096 };
@@ -62,61 +62,61 @@ MspTask* MspTask::create_task(task_info_t& taskInfo, MspSerial& msp_serial, msp_
 #else
     static std::array<StackType_t, MSP_TASK_STACK_DEPTH_BYTES / sizeof(StackType_t)> stack;
 #endif
-    taskInfo = {
-        .taskHandle = nullptr,
+    task_info = {
+        .task_handle = nullptr,
         .name = "MspTask",
-        .stackDepthBytes = MSP_TASK_STACK_DEPTH_BYTES,
-        .stackBuffer = reinterpret_cast<uint8_t*>(&stack[0]), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        .stack_depth_bytes = MSP_TASK_STACK_DEPTH_BYTES,
+        .stack_buffer = reinterpret_cast<uint8_t*>(&stack[0]), // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         .priority = priority,
         .core = core,
-        .taskIntervalMicroseconds = task_interval_microseconds,
+        .task_interval_microseconds = task_interval_microseconds,
     };
 
 #if defined(FRAMEWORK_USE_FREERTOS)
-    assert(std::strlen(taskInfo.name) < configMAX_TASK_NAME_LEN);
-    assert(taskInfo.priority < configMAX_PRIORITIES);
+    assert(std::strlen(task_info.name) < configMAX_TASK_NAME_LEN);
+    assert(task_info.priority < configMAX_PRIORITIES);
 
     static StaticTask_t taskBuffer;
 #if defined(FRAMEWORK_ESPIDF) || defined(FRAMEWORK_ARDUINO_ESP32)
-    taskInfo.taskHandle = xTaskCreateStaticPinnedToCore(
+    task_info.taskHandle = xTaskCreateStaticPinnedToCore(
         MspTask::Task,
-        taskInfo.name,
-        taskInfo.stackDepthBytes / sizeof(StackType_t),
+        task_info.name,
+        task_info.stack_depth_bytes / sizeof(StackType_t),
         &task_parameters,
-        taskInfo.priority,
+        task_info.priority,
         &stack[0],
-        &taskBuffer,
-        taskInfo.core
+        &task_buffer,
+        task_info.core
     );
-    assert(taskInfo.taskHandle != nullptr && "Unable to create MSP task");
+    assert(task_info.taskHandle != nullptr && "Unable to create MSP task");
 #elif defined(FRAMEWORK_RPI_PICO) || defined(FRAMEWORK_ARDUINO_RPI_PICO)
-    taskInfo.taskHandle = xTaskCreateStaticAffinitySet(
+    task_info.taskHandle = xTaskCreateStaticAffinitySet(
         MspTask::Task,
-        taskInfo.name,
-        taskInfo.stackDepthBytes / sizeof(StackType_t),
+        task_info.name,
+        task_info.stack_depth_bytes / sizeof(StackType_t),
         &task_parameters,
-        taskInfo.priority,
+        task_info.priority,
         &stack[0],
-        &taskBuffer,
-        taskInfo.core
+        &task_buffer,
+        task_info.core
     );
-    assert(taskInfo.taskHandle != nullptr && "Unable to create MSP task");
+    assert(task_info.taskHandle != nullptr && "Unable to create MSP task");
 #else
-    taskInfo.taskHandle = xTaskCreateStatic(
+    task_info.taskHandle = xTaskCreateStatic(
         MspTask::Task,
-        taskInfo.name,
-        taskInfo.stackDepthBytes / sizeof(StackType_t),
+        task_info.name,
+        task_info.stack_depth_bytes / sizeof(StackType_t),
         &task_parameters,
-        taskInfo.priority,
+        task_info.priority,
         &stack[0],
         &taskBuffer
     );
-    assert(taskInfo.taskHandle != nullptr && "Unable to create MSP task");
-    // vTaskCoreAffinitySet(taskInfo.taskHandle, taskInfo.core);
+    assert(task_info.taskHandle != nullptr && "Unable to create MSP task");
+    // vTaskCoreAffinitySet(task_info.taskHandle, task_info.core);
 #endif
 #else
     (void)task_parameters;
 #endif // FRAMEWORK_USE_FREERTOS
 
-    return &mspTask;
+    return &msp_task;
 }
