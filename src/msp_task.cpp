@@ -68,21 +68,21 @@ Task function for the MSP. Sets up and runs the task loop() function.
 {
 #if defined(FRAMEWORK_USE_FREERTOS)
     // pdMS_TO_TICKS Converts a time in milliseconds to a time in ticks.
-    const uint32_t taskIntervalTicks = pdMS_TO_TICKS(_taskIntervalMicroseconds / 1000);
-    assert(taskIntervalTicks > 0 && "MSP taskIntervalTicks is zero.");
+    const uint32_t task_interval_ticks = pdMS_TO_TICKS(_taskIntervalMicroseconds / 1000);
+    assert(task_interval_ticks > 0 && "MSP task_interval_ticks is zero.");
 
-    _previousWakeTimeTicks = xTaskGetTickCount();
+    _previous_wake_time_ticks = xTaskGetTickCount();
     while (true) {
-        // delay until the end of the next taskIntervalTicks
+        // delay until the end of the next task_interval_ticks
 #if (tskKERNEL_VERSION_MAJOR > 10) || ((tskKERNEL_VERSION_MAJOR == 10) && (tskKERNEL_VERSION_MINOR >= 5))
-            const BaseType_t wasDelayed = xTaskDelayUntil(&_previousWakeTimeTicks, taskIntervalTicks);
-            if (wasDelayed) {
-                _wasDelayed = true;
+            const BaseType_t was_delayed = xTaskDelayUntil(&_previous_wake_time_ticks, task_interval_ticks);
+            if (was_delayed) {
+                _was_delayed = true;
             }
 #else
-            vTaskDelayUntil(&_previousWakeTimeTicks, taskIntervalTicks);
+            vTaskDelayUntil(&_previous_wake_time_ticks, task_interval_ticks);
 #endif
-        // calculate _tick_count_delta to get actual deltaT value, since we may have been delayed for more than taskIntervalTicks
+        // calculate _tick_count_delta to get actual deltaT value, since we may have been delayed for more than task_interval_ticks
         const TickType_t tick_count = xTaskGetTickCount();
         _tick_count_delta = tick_count - _tick_count_previous;
         _tick_count_previous = tick_count;
