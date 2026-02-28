@@ -151,7 +151,7 @@ public:
     void process_received_command(msp_parameter_group_t& pg, msp_stream_packet_with_header_t* pwh);
     void process_received_reply(msp_parameter_group_t& pg);
     void process_pending_request(msp_parameter_group_t& pg);
-    msp_stream_packet_with_header_t serial_encode(const msp_const_packet_t& packet, msp_version_e mspVersion);
+    msp_stream_packet_with_header_t serial_encode(const msp_const_packet_t& packet, msp_version_e msp_version);
     msp_stream_packet_with_header_t serial_encode_msp_v1(uint8_t command, const uint8_t* buf, uint8_t len);
     //bool put_char(uint8_t c, MspBase::process_commandFnPtr process_commandFn, MspBase::process_replyFnPtr process_replyFn, packet_with_header_t& pwh);
     bool put_char(msp_parameter_group_t& pg, uint8_t c, msp_stream_packet_with_header_t* pwh);

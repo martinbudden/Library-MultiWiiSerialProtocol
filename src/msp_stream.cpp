@@ -309,14 +309,14 @@ checksum - XOR of the size, type, and payload bytes.
 
 The checksum of a request (ie a message with no payload) equals the type.
 */
-msp_stream_packet_with_header_t MspStream::serial_encode(const msp_const_packet_t& packet, msp_version_e mspVersion)
+msp_stream_packet_with_header_t MspStream::serial_encode(const msp_const_packet_t& packet, msp_version_e msp_version)
 {
     static constexpr std::array<uint8_t, MSP_VERSION_COUNT> mspMagic = { 'M', 'M', 'X' };
 
     msp_stream_packet_with_header_t ret {
         .hdr_buf = {
             '$',
-            mspMagic[mspVersion],
+            mspMagic[msp_version],
             packet.result == MSP_RESULT_ERROR ? static_cast<uint8_t>('!') : static_cast<uint8_t>('>')
         },
         .crc_buf = { 0, 0 },
@@ -330,55 +330,55 @@ msp_stream_packet_with_header_t MspStream::serial_encode(const msp_const_packet_
 
     enum { V1_CHECKSUM_STARTPOS = 3 };
 
-    if (mspVersion == MSP_V1) {
-        auto hdrV1 = reinterpret_cast<msp_stream_header_v1_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    if (msp_version == MSP_V1) {
+        auto hdr_v1 = reinterpret_cast<msp_stream_header_v1_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         ret.hdr_len += sizeof(msp_stream_header_v1_t);
-        hdrV1->cmd = static_cast<uint8_t>(packet.cmd);
+        hdr_v1->cmd = static_cast<uint8_t>(packet.cmd);
 
         // Add JUMBO-frame header if necessary
         if (ret.data_len >= JUMBO_FRAME_SIZE_LIMIT) {
             auto hdrJUMBO = reinterpret_cast<msp_stream_header_jumbo_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
             ret.hdr_len += sizeof(msp_stream_header_jumbo_t);
 
-            hdrV1->size = JUMBO_FRAME_SIZE_LIMIT;
+            hdr_v1->size = JUMBO_FRAME_SIZE_LIMIT;
             hdrJUMBO->size = static_cast<uint8_t>(ret.data_len);
         } else {
-            hdrV1->size = static_cast<uint8_t>(ret.data_len);
+            hdr_v1->size = static_cast<uint8_t>(ret.data_len);
         }
 
         // Pre-calculate CRC
         ret.checksum = checksum_xor(0, &ret.hdr_buf[V1_CHECKSUM_STARTPOS], ret.hdr_len - V1_CHECKSUM_STARTPOS); // NOLINT(cppcoreguidelines-pro-bounds-pointer-arithmetic)
         ret.checksum = checksum_xor(ret.checksum, packet.payload.ptr(), ret.data_len);
         ret.crc_buf[ret.crc_len++] = ret.checksum;
-    } else if (mspVersion == MSP_V2_OVER_V1) {
-        auto hdrV1 = reinterpret_cast<msp_stream_header_v1_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    } else if (msp_version == MSP_V2_OVER_V1) {
+        auto hdr_v1 = reinterpret_cast<msp_stream_header_v1_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
 
         ret.hdr_len += sizeof(msp_stream_header_v1_t);
 
-        auto hdrV2 = reinterpret_cast<msp_stream_header_v2_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        auto hdr_v2 = reinterpret_cast<msp_stream_header_v2_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         ret.hdr_len += sizeof(msp_stream_header_v2_t);
 
-        const uint16_t v1PayloadSize = sizeof(msp_stream_header_v2_t) + ret.data_len + 1;  // MSPv2 header + data payload + MSPv2 checksum
-        hdrV1->cmd = MspBase::V2_FRAME_ID;
+        const uint16_t v1_payload_size = sizeof(msp_stream_header_v2_t) + ret.data_len + 1;  // MSPv2 header + data payload + MSPv2 checksum
+        hdr_v1->cmd = MspBase::V2_FRAME_ID;
 
         // Add JUMBO-frame header if necessary
-        if (v1PayloadSize >= JUMBO_FRAME_SIZE_LIMIT) {
+        if (v1_payload_size >= JUMBO_FRAME_SIZE_LIMIT) {
             auto hdrJUMBO = reinterpret_cast<msp_stream_header_jumbo_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
             ret.hdr_len += sizeof(msp_stream_header_jumbo_t);
 
-            hdrV1->size = JUMBO_FRAME_SIZE_LIMIT;
-            hdrJUMBO->size = v1PayloadSize;
+            hdr_v1->size = JUMBO_FRAME_SIZE_LIMIT;
+            hdrJUMBO->size = v1_payload_size;
         } else {
-            hdrV1->size = static_cast<uint8_t>(v1PayloadSize);
+            hdr_v1->size = static_cast<uint8_t>(v1_payload_size);
         }
 
         // Fill V2 header
-        hdrV2->flags = packet.flags;
-        hdrV2->cmd = static_cast<uint16_t>(packet.cmd);
-        hdrV2->size = ret.data_len;
+        hdr_v2->flags = packet.flags;
+        hdr_v2->cmd = static_cast<uint16_t>(packet.cmd);
+        hdr_v2->size = ret.data_len;
 
         // V2 CRC: only V2 header + data payload
-        ret.checksum = crc8_dvb_s2_update(0, reinterpret_cast<uint8_t*>(hdrV2), sizeof(msp_stream_header_v2_t)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        ret.checksum = crc8_dvb_s2_update(0, reinterpret_cast<uint8_t*>(hdr_v2), sizeof(msp_stream_header_v2_t)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         ret.checksum = crc8_dvb_s2_update(ret.checksum, packet.payload.ptr(), ret.data_len);
         ret.crc_buf[ret.crc_len++] = ret.checksum;
 
@@ -387,15 +387,15 @@ msp_stream_packet_with_header_t MspStream::serial_encode(const msp_const_packet_
         ret.checksum = checksum_xor(ret.checksum, packet.payload.ptr(), ret.data_len);
         ret.checksum = checksum_xor(ret.checksum, &ret.crc_buf[0], ret.crc_len);
         ret.crc_buf[ret.crc_len++] = ret.checksum; // NOLINT(cppcoreguidelines-pro-bounds-constant-array-index)
-    } else if (mspVersion == MSP_V2_NATIVE) {
-        auto hdrV2 = reinterpret_cast<msp_stream_header_v2_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+    } else if (msp_version == MSP_V2_NATIVE) {
+        auto hdr_v2 = reinterpret_cast<msp_stream_header_v2_t*>(&ret.hdr_buf[ret.hdr_len]); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         ret.hdr_len += sizeof(msp_stream_header_v2_t);
 
-        hdrV2->flags = packet.flags;
-        hdrV2->cmd = static_cast<uint16_t>(packet.cmd);
-        hdrV2->size = ret.data_len;
+        hdr_v2->flags = packet.flags;
+        hdr_v2->cmd = static_cast<uint16_t>(packet.cmd);
+        hdr_v2->size = ret.data_len;
 
-        ret.checksum = crc8_dvb_s2_update(0, reinterpret_cast<uint8_t*>(hdrV2), sizeof(msp_stream_header_v2_t)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
+        ret.checksum = crc8_dvb_s2_update(0, reinterpret_cast<uint8_t*>(hdr_v2), sizeof(msp_stream_header_v2_t)); // NOLINT(cppcoreguidelines-pro-type-reinterpret-cast)
         ret.checksum = crc8_dvb_s2_update(ret.checksum, packet.payload.ptr(), ret.data_len);
         ret.crc_buf[ret.crc_len++] = ret.checksum;
     } else {
@@ -451,14 +451,14 @@ msp_const_packet_t MspStream::process_in_buf(msp_parameter_group_t& pg)
     (void)status;
     reply.payload.switch_to_reader(); // change streambuf direction
 
-    const msp_const_packet_t replyConst = {
+    const msp_const_packet_t reply_const = {
         .payload = StreamBufReader(reply.payload),
         .cmd = reply.cmd,
         .result = reply.result,
         .flags = reply.flags,
         .direction = reply.direction
     };
-    return replyConst;
+    return reply_const;
 }
 
 /*!

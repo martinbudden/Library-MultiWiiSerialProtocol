@@ -131,9 +131,9 @@ public:
     MspBase() = default;
     virtual ~MspBase() = default;
 
-    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, StreamBufReader& src);
+    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src);
 
-    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src);
+    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src);
 
     virtual void process_reply(msp_parameter_group_t& pg, const msp_packet_t& reply);
 

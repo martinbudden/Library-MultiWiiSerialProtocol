@@ -14,11 +14,11 @@ struct msp_parameter_group_t {
 };
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-explicit-virtual-functions,cppcoreguidelines-pro-bounds-pointer-arithmetic,hicpp-use-override,misc-const-correctness,misc-non-private-member-variables-in-classes,modernize-use-override,readability-magic-numbers,readability-redundant-access-specifiers)
-class MSP_Test : public MspBase {
+class MspTest : public MspBase {
 public:
     enum { MSP_SET_NAME = 11 };
 public:
-    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src) override;
+    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) override;
 public:
     std::array<uint8_t, 8> _name;
 };
@@ -26,11 +26,11 @@ public:
 /*
 MSP_SET_* commands handled in process_set_command
 */
-msp_result_e MSP_Test::process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspTest::process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
 
-    switch (cmdMSP) { // NOLINT(hicpp-multiway-paths-covered)
+    switch (cmd_msp) { // NOLINT(hicpp-multiway-paths-covered)
     case MSP_SET_NAME: {
         _name.fill(0xFF);
         size_t ii = 0;
@@ -48,89 +48,89 @@ msp_result_e MSP_Test::process_set_command(msp_parameter_group_t& pg, int16_t cm
 
 void test_msp_set_name()
 {
-    static MSP_Test msp;
-    static MspStream mspStream(msp);
+    static MspTest msp;
+    static MspStream msp_stream(msp);
     static msp_parameter_group_t pg;
 
-    mspStream.set_packet_state(MSP_IDLE);
+    msp_stream.set_packet_state(MSP_IDLE);
 
     msp_stream_packet_with_header_t pwh {};
 
     const uint8_t payloadSize = 6;
     const uint8_t checksum = 30;
     const std::array<uint8_t, 14> inStream = {
-        '$', 'M', '<', payloadSize, MSP_Test::MSP_SET_NAME,
+        '$', 'M', '<', payloadSize, MspTest::MSP_SET_NAME,
         'M', 'y', 'N', 'a', 'm', 'e',
         checksum
     };
 #if false
     // simulate reading from serial port
-    for (uint8_t inChar : inStream) {
-        const bool eof = mspStream.put_char(pg, inChar, &pwh);
+    for (uint8_t in_char : inStream) {
+        const bool eof = msp_stream.put_char(pg, in_char, &pwh);
         if (eof) {
             break;
         }
     }
 #endif
 
-    bool complete = mspStream.put_char(pg, inStream[0], &pwh); // $
-    TEST_ASSERT_EQUAL(0, mspStream.get_checksum1());
+    bool complete = msp_stream.put_char(pg, inStream[0], &pwh); // $
+    TEST_ASSERT_EQUAL(0, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_IDLE, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_IDLE, msp_stream.get_packet_state());
 
-    complete = mspStream.put_char(pg, inStream[1], &pwh); // M
-    TEST_ASSERT_EQUAL(0, mspStream.get_checksum1());
+    complete = msp_stream.put_char(pg, inStream[1], &pwh); // M
+    TEST_ASSERT_EQUAL(0, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_HEADER_M, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_HEADER_M, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[2], &pwh); // <
-    TEST_ASSERT_EQUAL(0, mspStream.get_checksum1());
-    TEST_ASSERT_EQUAL(MSP_HEADER_V1, mspStream.get_packet_state());
-    TEST_ASSERT_EQUAL(MSP_PACKET_COMMAND, mspStream.get_packet_type());
+    msp_stream.put_char(pg, inStream[2], &pwh); // <
+    TEST_ASSERT_EQUAL(0, msp_stream.get_checksum1());
+    TEST_ASSERT_EQUAL(MSP_HEADER_V1, msp_stream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PACKET_COMMAND, msp_stream.get_packet_type());
 
-    mspStream.put_char(pg, inStream[3], &pwh); // size = 6
-    TEST_ASSERT_EQUAL(6, mspStream.get_checksum1());
-    TEST_ASSERT_EQUAL(MSP_HEADER_V1, mspStream.get_packet_state());
+    msp_stream.put_char(pg, inStream[3], &pwh); // size = 6
+    TEST_ASSERT_EQUAL(6, msp_stream.get_checksum1());
+    TEST_ASSERT_EQUAL(MSP_HEADER_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[4], &pwh); // P1
-    TEST_ASSERT_EQUAL(13, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[4], &pwh); // P1
+    TEST_ASSERT_EQUAL(13, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[5], &pwh);
-    TEST_ASSERT_EQUAL(64, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[5], &pwh);
+    TEST_ASSERT_EQUAL(64, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[6], &pwh);
-    TEST_ASSERT_EQUAL(57, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[6], &pwh);
+    TEST_ASSERT_EQUAL(57, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[7], &pwh);
-    TEST_ASSERT_EQUAL(119, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[7], &pwh);
+    TEST_ASSERT_EQUAL(119, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[8], &pwh);
-    TEST_ASSERT_EQUAL(22, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[8], &pwh);
+    TEST_ASSERT_EQUAL(22, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[9], &pwh);
-    TEST_ASSERT_EQUAL(123, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[9], &pwh);
+    TEST_ASSERT_EQUAL(123, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_PAYLOAD_V1, msp_stream.get_packet_state());
 
-    mspStream.put_char(pg, inStream[10], &pwh);
-    TEST_ASSERT_EQUAL(30, mspStream.get_checksum1());
+    msp_stream.put_char(pg, inStream[10], &pwh);
+    TEST_ASSERT_EQUAL(30, msp_stream.get_checksum1());
     TEST_ASSERT_FALSE(complete);
-    TEST_ASSERT_EQUAL(MSP_CHECKSUM_V1, mspStream.get_packet_state());
+    TEST_ASSERT_EQUAL(MSP_CHECKSUM_V1, msp_stream.get_packet_state());
 
-    complete = mspStream.put_char(pg, inStream[11], &pwh); // checksum
-    TEST_ASSERT_EQUAL(30, mspStream.get_checksum1());
+    complete = msp_stream.put_char(pg, inStream[11], &pwh); // checksum
+    TEST_ASSERT_EQUAL(30, msp_stream.get_checksum1());
     TEST_ASSERT_TRUE(complete);
-    TEST_ASSERT_EQUAL(MSP_IDLE, mspStream.get_packet_state()); // put_char sets from MSP_COMMAND_RECEIVED to MSP_IDLE
+    TEST_ASSERT_EQUAL(MSP_IDLE, msp_stream.get_packet_state()); // put_char sets from MSP_COMMAND_RECEIVED to MSP_IDLE
 
     TEST_ASSERT_EQUAL('$', pwh.hdr_buf[0]);
     TEST_ASSERT_EQUAL('M', pwh.hdr_buf[1]);
@@ -151,25 +151,25 @@ void test_msp_set_name()
 
 void test_msp_set_name_loop()
 {
-    static MSP_Test msp;
-    static MspStream mspStream(msp);
+    static MspTest msp;
+    static MspStream msp_stream(msp);
     static msp_parameter_group_t pg;
 
-    mspStream.set_packet_state(MSP_IDLE);
+    msp_stream.set_packet_state(MSP_IDLE);
 
     msp_stream_packet_with_header_t pwh;
 
     const uint8_t payloadSize = 6;
     const uint8_t checksum = 30;
     const std::array<uint8_t, 13> inStream = {
-        'M', '<', payloadSize, MSP_Test::MSP_SET_NAME,
+        'M', '<', payloadSize, MspTest::MSP_SET_NAME,
         'M', 'y', 'N', 'a', 'm', 'e',
         checksum
     };
 
     // simulate reading from serial port
-    for (uint8_t inChar : inStream) {
-        const bool eof = mspStream.put_char(pg, inChar, &pwh);
+    for (uint8_t in_char : inStream) {
+        const bool eof = msp_stream.put_char(pg, in_char, &pwh);
         (void)eof;
         //if (eof) { break; }
     }
@@ -193,15 +193,15 @@ void test_msp_set_name_loop()
 
 void test_msp_set_name_serial_encode_v1()
 {
-    static MSP_Test msp;
-    static MspStream mspStream(msp);
+    static MspTest msp;
+    static MspStream msp_stream(msp);
 
     const std::array<uint8_t, 6> buf = {
         'M', 'y', 'N', 'a', 'm', 'e',
     };
     TEST_ASSERT_EQUAL(6, buf.size());
 
-    const msp_stream_packet_with_header_t pwh = mspStream.serial_encode_msp_v1(MSP_Test::MSP_SET_NAME, &buf[0], buf.size());
+    const msp_stream_packet_with_header_t pwh = msp_stream.serial_encode_msp_v1(MspTest::MSP_SET_NAME, &buf[0], buf.size());
 
     TEST_ASSERT_EQUAL('$', pwh.hdr_buf[0]);
     TEST_ASSERT_EQUAL('M', pwh.hdr_buf[1]);

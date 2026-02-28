@@ -54,12 +54,12 @@ enum defaultsType_e {
 };
 #endif
 
-msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)src;
 
-    switch (cmdMSP) { // NOLINT(hicpp-multiway-paths-covered)
+    switch (cmd_msp) { // NOLINT(hicpp-multiway-paths-covered)
     case MSP_API_VERSION:
         dst.write_u8(MSP_PROTOCOL_VERSION);
         dst.write_u8(MSP_API_VERSION_MAJOR);
@@ -70,10 +70,10 @@ msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t
     }
 }
 
-msp_result_e MspBase::process_set_command(msp_parameter_group_t& pg, int16_t cmdMSP, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
-    (void)cmdMSP;
+    (void)cmd_msp;
     (void)src;
 
     return MSP_RESULT_CMD_UNKNOWN;
@@ -85,13 +85,12 @@ msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const
 {
     StreamBufWriter& dst = reply.payload;
     StreamBufReader src(cmd.payload);
-    const int16_t cmdMSP = cmd.cmd; // NOLINT(cppcoreguidelines-init-variables) false positive
     // initialize reply by default
     reply.cmd = cmd.cmd;
 
-    msp_result_e ret = process_get_set_command(pg, cmdMSP, dst, src); // NOLINT(cppcoreguidelines-init-variables) false positive
+    msp_result_e ret = process_get_set_command(pg, cmd.cmd, dst, src); // NOLINT(cppcoreguidelines-init-variables) false positive
     if (ret == MSP_RESULT_CMD_UNKNOWN) {
-        ret = process_set_command(pg, cmdMSP, src); // chains to processReadCommand
+        ret = process_set_command(pg, cmd.cmd, src); // chains to processReadCommand
     }
     reply.result = ret;
     return ret;

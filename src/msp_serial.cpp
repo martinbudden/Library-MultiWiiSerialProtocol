@@ -93,8 +93,8 @@ Called from MspTask::loop()
 void MspSerial::process_input(msp_parameter_group_t& pg)
 {
     while (_msp_serial_port.is_data_available()) {
-        const uint8_t inChar = _msp_serial_port.read_byte();
-        _msp_stream.put_char(pg, inChar, nullptr); // This will invoke MspSerial::send_frame(), when a completed frame is received
+        const uint8_t in_char = _msp_serial_port.read_byte();
+        _msp_stream.put_char(pg, in_char, nullptr); // This will invoke MspSerial::send_frame(), when a completed frame is received
     }
 }
 

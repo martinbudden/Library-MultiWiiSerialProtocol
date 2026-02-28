@@ -17,7 +17,7 @@ static MspSerial* msp_serial_ptr {};
 
 class MspSerialExample : public MspSerial {
 public:
-    MspSerialExample(MspStream& mspStream, SoftwareSerial& msp_serial) : _msp_stream(mspStream), _msp_serial(msp_serial) {}
+    MspSerialExample(MspStream& msp_stream, SoftwareSerial& msp_serial) : _msp_stream(msp_stream), _msp_serial(msp_serial) {}
     virtual size_t send_frame(const uint8_t* hdr, size_t hdr_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len) override;
     virtual void process_input(msp_parameter_group_t& pg) override;
 private:
@@ -40,10 +40,10 @@ void setup()
     softwareSerial.begin(9600);
 
     static MspBase msp;
-    static MspStream mspStream(msp);
-    static MspSerialExample msp_serial(mspStream, softwareSerial);
+    static MspStream msp_stream(msp);
+    static MspSerialExample msp_serial(msp_stream, softwareSerial);
 
-    msp_stream_ptr = &mspStream;
+    msp_stream_ptr = &msp_stream;
 
     // create and send a packet to get the BASE API VERSION
     const uint8_t payloadSize = 0;
@@ -51,8 +51,8 @@ void setup()
     const std::array<uint8_t, 6> inStream = {
         '$', 'M', '<', payloadSize, MSP_BASE_API_VERSION, checksum,
     };
-    for (uint8_t inChar : inStream) {
-        mspStream.put_char(inChar, nullptr);
+    for (uint8_t in_char : inStream) {
+        msp_stream.put_char(in_char, nullptr);
     }
 
 
@@ -67,15 +67,15 @@ void loop()
 void MspSerial::process_input(msp_parameter_group_t& pg)
 {
     while (_msp_serial.available() > 0) {
-        const uint8_t inChar = _msp_serial.read();
-        if (inChar < 0x10) { Serial.print("0"); }
-        Serial.print(inChar, HEX);
+        const uint8_t in_char = _msp_serial.read();
+        if (in_char < 0x10) { Serial.print("0"); }
+        Serial.print(in_char, HEX);
         Serial.print(" ");
-        Serial.print(inChar);
+        Serial.print(in_char);
         Serial.println();
 
-        Serial.print(inChar);
-        //_msp_stream.put_char(inChar, nullptr); // This will invoke MspSerial::send_frame(), when a completed frame is received
+        Serial.print(in_char);
+        //_msp_stream.put_char(in_char, nullptr); // This will invoke MspSerial::send_frame(), when a completed frame is received
         // interpre data back from the flight controller
     }
 }

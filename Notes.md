@@ -1,13 +1,11 @@
 Notes.mb
 
-
 enum msp_result_e {
     MSP_RESULT_ACK = 1,
     MSP_RESULT_ERROR = -1,
     MSP_RESULT_NO_REPLY = 0,
     MSP_RESULT_CMD_UNKNOWN = -2,   // don't know how to process command, try next handler
 };
-
 
 MSP task calls _msp_serial.process_input()
     calls _msp_stream.put_char
