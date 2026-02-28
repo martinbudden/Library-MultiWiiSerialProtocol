@@ -54,7 +54,7 @@ enum defaultsType_e {
 };
 #endif
 
-msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)src;
@@ -70,7 +70,7 @@ msp_result_e MspBase::process_get_set_command(msp_parameter_group_t& pg, int16_t
     }
 }
 
-msp_result_e MspBase::process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)cmd_msp;
@@ -88,9 +88,9 @@ msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const
     // initialize reply by default
     reply.cmd = cmd.cmd;
 
-    msp_result_e ret = process_get_set_command(pg, cmd.cmd, dst, src); // NOLINT(cppcoreguidelines-init-variables) false positive
+    msp_result_e ret = process_write_command(pg, cmd.cmd, dst, src); // NOLINT(cppcoreguidelines-init-variables) false positive
     if (ret == MSP_RESULT_CMD_UNKNOWN) {
-        ret = process_set_command(pg, cmd.cmd, src); // chains to processReadCommand
+        ret = process_read_command(pg, cmd.cmd, src); // chains to processReadCommand
     }
     reply.result = ret;
     return ret;

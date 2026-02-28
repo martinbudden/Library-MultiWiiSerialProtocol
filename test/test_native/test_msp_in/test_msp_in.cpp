@@ -18,15 +18,15 @@ class MspTest : public MspBase {
 public:
     enum { MSP_SET_NAME = 11 };
 public:
-    virtual msp_result_e process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) override;
+    virtual msp_result_e process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) override;
 public:
     std::array<uint8_t, 8> _name;
 };
 
 /*
-MSP_SET_* commands handled in process_set_command
+MSP_SET_* commands handled in process_read_command
 */
-msp_result_e MspTest::process_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspTest::process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
 

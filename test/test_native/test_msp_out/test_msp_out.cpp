@@ -19,10 +19,10 @@ class MspTest : public MspBase {
 public:
     enum { MSP_ATTITUDE = 108 };
 public:
-    virtual msp_result_e process_get_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) override;
+    virtual msp_result_e process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) override;
 };
 
-msp_result_e MspTest::process_get_set_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src)
+msp_result_e MspTest::process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src)
 {
     (void)pg;
     (void)src;
@@ -136,7 +136,7 @@ void test_msp_out()
     std::array<uint8_t, 16> src_buf;
     StreamBufReader src(&src_buf[0], sizeof(src_buf)); // NOLINT(cppcoreguidelines-init-variables)
 
-    msp.process_get_set_command(pg, MSP_API_VERSION, dst, src);
+    msp.process_write_command(pg, MSP_API_VERSION, dst, src);
     TEST_ASSERT_EQUAL(sizeof(dst_buf) - 3, dst.bytes_remaining());
     dst.switch_to_reader();
     TEST_ASSERT_EQUAL(MSP_PROTOCOL_VERSION, dst.read_u8());
