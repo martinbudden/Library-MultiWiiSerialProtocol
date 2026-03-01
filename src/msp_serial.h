@@ -53,7 +53,7 @@
 
 class MspStream;
 class MspSerialPortBase;
-struct msp_parameter_group_t;
+struct msp_context_t;
 
 
 class MspSerial {
@@ -62,7 +62,7 @@ public:
     MspSerial(MspStream& msp_stream, MspSerialPortBase& msp_serial_port);
 
     virtual size_t send_frame(const uint8_t* headerr, size_t header_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len);
-    virtual void process_input(msp_parameter_group_t& pg);
+    virtual void process_input(msp_context_t& pg);
 private:
     MspStream& _msp_stream;
     MspSerialPortBase& _msp_serial_port;

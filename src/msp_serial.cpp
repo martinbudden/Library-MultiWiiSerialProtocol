@@ -90,7 +90,7 @@ MspSerial::MspSerial(MspStream& msp_stream, MspSerialPortBase& msp_serial_port) 
 /*!
 Called from MspTask::loop()
 */
-void MspSerial::process_input(msp_parameter_group_t& pg)
+void MspSerial::process_input(msp_context_t& pg)
 {
     while (_msp_serial_port.is_data_available()) {
         const uint8_t in_char = _msp_serial_port.read_byte();

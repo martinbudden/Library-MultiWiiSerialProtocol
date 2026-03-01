@@ -12,17 +12,17 @@ void tearDown() {
 }
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-explicit-virtual-functions,cppcoreguidelines-pro-bounds-pointer-arithmetic,hicpp-use-equals-delete,hicpp-use-override,misc-const-correctness,misc-non-private-member-variables-in-classes,modernize-use-equals-delete,modernize-use-override,readability-magic-numbers,readability-redundant-access-specifiers)
-struct msp_parameter_group_t {
+struct msp_context_t {
 };
 
 class MspTest : public MspBase {
 public:
     enum { MSP_ATTITUDE = 108 };
 public:
-    virtual msp_result_e process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) override;
+    virtual msp_result_e process_write_command(msp_context_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) override;
 };
 
-msp_result_e MspTest::process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src)
+msp_result_e MspTest::process_write_command(msp_context_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src)
 {
     (void)pg;
     (void)src;
@@ -76,7 +76,7 @@ public:
     MspSerialTest& operator=(MspSerialTest&&) = delete;
 private:
     virtual size_t send_frame(const uint8_t* hdr, size_t hdr_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len) override;
-    virtual void process_input(msp_parameter_group_t& pg) override;
+    virtual void process_input(msp_context_t& pg) override;
 };
 
 /*!
@@ -120,7 +120,7 @@ size_t MspSerialTest::send_frame(const uint8_t* hdr, size_t hdr_len, const uint8
     return 0;
 }
 
-void MspSerialTest::process_input(msp_parameter_group_t& pg)
+void MspSerialTest::process_input(msp_context_t& pg)
 {
     (void)pg;
 }
@@ -129,7 +129,7 @@ void test_msp_out()
 {
     static MspBase msp;
     static const MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     std::array<uint8_t, 128> dst_buf;
     StreamBufWriter dst(&dst_buf[0], sizeof(dst_buf)); // NOLINT(cppcoreguidelines-init-variables)
@@ -148,7 +148,7 @@ void test_putchar()
 {
     static MspBase msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 
@@ -202,7 +202,7 @@ void test_putchar_array_stream()
 {
     static MspBase msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 
@@ -261,7 +261,7 @@ void test_putchar_array_stream_no_payload()
 {
     static MspBase msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 
@@ -314,7 +314,7 @@ void test_putchar_array_stream_loop()
 {
     static MspBase msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 
@@ -356,7 +356,7 @@ void test_msp_attitude()
 {
     static MspTest msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 

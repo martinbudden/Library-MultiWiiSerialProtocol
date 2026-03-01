@@ -48,7 +48,7 @@
 
 #include <stream_buf_reader.h>
 
-struct msp_parameter_group_t;
+struct msp_context_t;
 struct serialPort_t;
 
 enum {
@@ -131,11 +131,11 @@ public:
     MspBase() = default;
     virtual ~MspBase() = default;
 
-    virtual msp_result_e process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src);
+    virtual msp_result_e process_write_command(msp_context_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src);
 
-    virtual msp_result_e process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src);
+    virtual msp_result_e process_read_command(msp_context_t& pg, int16_t cmd_msp, StreamBufReader& src);
 
-    virtual void process_reply(msp_parameter_group_t& pg, const msp_packet_t& reply);
+    virtual void process_reply(msp_context_t& pg, const msp_packet_t& reply);
 
-    virtual msp_result_e process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply);
+    virtual msp_result_e process_command(msp_context_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply);
 };

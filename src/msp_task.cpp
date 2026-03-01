@@ -39,11 +39,11 @@
 #include <time_microseconds.h>
 
 
-MspTask::MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial, msp_parameter_group_t& parameter_group) :
+MspTask::MspTask(uint32_t task_interval_microseconds, MspSerial& msp_serial, msp_context_t& context) :
     TaskBase(task_interval_microseconds),
     _task_interval_milliseconds(task_interval_microseconds/1000), // NOLINT(cppcoreguidelines-avoid-magic-numbers,readability-magic-numbers)
     _msp_serial(msp_serial),
-    _parameter_group(parameter_group)
+    _context(context)
 {
 }
 
@@ -57,7 +57,7 @@ void MspTask::loop()
 
     if (_tick_count_delta >= _task_interval_milliseconds) { // if _task_interval_microseconds has passed, then run the update
         _tick_count_previous = tick_count;
-        _msp_serial.process_input(_parameter_group);
+        _msp_serial.process_input(_context);
     }
 }
 
@@ -88,7 +88,7 @@ Task function for the MSP. Sets up and runs the task loop() function.
         _tick_count_previous = tick_count;
 
         if (_tick_count_delta > 0) { // guard against the case of this while loop executing twice on the same tick interval
-            _msp_serial.process_input(_parameter_group);
+            _msp_serial.process_input(_context);
         }
     }
 #else

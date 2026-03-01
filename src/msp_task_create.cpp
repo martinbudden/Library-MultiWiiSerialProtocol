@@ -40,15 +40,15 @@
 #endif
 
 
-MspTask* MspTask::create_task(MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(MspSerial& msp_serial, msp_context_t& context, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
     task_info_t task_info {}; // NOLINT(cppcoreguidelines-init-variables) false positive
-    return create_task(task_info, msp_serial, parameter_group, priority, core, task_interval_microseconds);
+    return create_task(task_info, msp_serial, context, priority, core, task_interval_microseconds);
 }
 
-MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp_parameter_group_t& parameter_group, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
+MspTask* MspTask::create_task(task_info_t& task_info, MspSerial& msp_serial, msp_context_t& context, uint8_t priority, uint32_t core, uint32_t task_interval_microseconds) // NOLINT(readability-convert-member-functions-to-static)
 {
-    static MspTask msp_task(task_interval_microseconds, msp_serial, parameter_group);
+    static MspTask msp_task(task_interval_microseconds, msp_serial, context);
 
     // Note that task parameters must not be on the stack, since they are used when the task is started, which is after this function returns.
     static TaskBase::parameters_t task_parameters { // NOLINT(misc-const-correctness) false positive

@@ -19,7 +19,7 @@ class MspSerialExample : public MspSerial {
 public:
     MspSerialExample(MspStream& msp_stream, SoftwareSerial& msp_serial) : _msp_stream(msp_stream), _msp_serial(msp_serial) {}
     virtual size_t send_frame(const uint8_t* hdr, size_t hdr_len, const uint8_t* data, size_t data_len, const uint8_t* crc, size_t crc_len) override;
-    virtual void process_input(msp_parameter_group_t& pg) override;
+    virtual void process_input(msp_context_t& pg) override;
 private:
     MspStream& _msp_stream;
     SoftwareSerial& _msp_serial;
@@ -64,7 +64,7 @@ void loop()
 }
 
 
-void MspSerial::process_input(msp_parameter_group_t& pg)
+void MspSerial::process_input(msp_context_t& pg)
 {
     while (_msp_serial.available() > 0) {
         const uint8_t in_char = _msp_serial.read();

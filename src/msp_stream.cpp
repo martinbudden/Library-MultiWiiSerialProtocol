@@ -259,7 +259,7 @@ void MspStream::process_received_packet_data(uint8_t c) // NOLINT(readability-fu
     }
 }
 
-void MspStream::process_pending_request(msp_parameter_group_t& pg)
+void MspStream::process_pending_request(msp_context_t& pg)
 {
     // If no request is pending or 100ms guard time has not elapsed - do nothing
     //if ((_pending_request == MSP_PENDING_NONE) || (cmp32(millis(), _lastActivityMs) < 100)) {
@@ -429,7 +429,7 @@ msp_stream_packet_with_header_t MspStream::serial_encode_msp_v1(uint8_t command,
 For test code
 Called when the state machine has assembled a packet into _in_buf.
 */
-msp_const_packet_t MspStream::process_in_buf(msp_parameter_group_t& pg)
+msp_const_packet_t MspStream::process_in_buf(msp_context_t& pg)
 {
     msp_const_packet_t command = {
         .payload = StreamBufReader(&_in_buf[0], _data_size),
@@ -466,7 +466,7 @@ Called when the state machine has assembled a packet into _in_buf.
 
 pwh is optional parameter for use by test code.
 */
-void MspStream::process_received_command(msp_parameter_group_t& pg, msp_stream_packet_with_header_t* pwh)
+void MspStream::process_received_command(msp_context_t& pg, msp_stream_packet_with_header_t* pwh)
 {
     const msp_const_packet_t command = {
         .payload = StreamBufReader(&_in_buf[0], _data_size),
@@ -506,7 +506,7 @@ void MspStream::process_received_command(msp_parameter_group_t& pg, msp_stream_p
     }
 }
 
-void MspStream::process_received_reply(msp_parameter_group_t& pg)
+void MspStream::process_received_reply(msp_context_t& pg)
 {
     const msp_packet_t reply = {
         .payload = StreamBufWriter(&_in_buf[0], _data_size),
@@ -524,7 +524,7 @@ void MspStream::process_received_reply(msp_parameter_group_t& pg)
 /*!
 pwh is optional return value for use by test code.
 */
-bool MspStream::put_char(msp_parameter_group_t& pg, uint8_t c, msp_stream_packet_with_header_t* pwh)
+bool MspStream::put_char(msp_context_t& pg, uint8_t c, msp_stream_packet_with_header_t* pwh)
 {
     bool ret = false;
 

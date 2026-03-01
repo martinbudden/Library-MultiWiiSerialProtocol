@@ -54,7 +54,7 @@ enum defaultsType_e {
 };
 #endif
 
-msp_result_e MspBase::process_write_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_write_command(msp_context_t& pg, int16_t cmd_msp, StreamBufWriter& dst, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)src;
@@ -70,7 +70,7 @@ msp_result_e MspBase::process_write_command(msp_parameter_group_t& pg, int16_t c
     }
 }
 
-msp_result_e MspBase::process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspBase::process_read_command(msp_context_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
     (void)cmd_msp;
@@ -81,7 +81,7 @@ msp_result_e MspBase::process_read_command(msp_parameter_group_t& pg, int16_t cm
 /*
 Returns MSP_RESULT_ACK, MSP_RESULT_ERROR or MSP_RESULT_NO_REPLY
 */
-msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply)
+msp_result_e MspBase::process_command(msp_context_t& pg, const msp_const_packet_t& cmd, msp_packet_t& reply)
 {
     StreamBufWriter& dst = reply.payload;
     StreamBufReader src(cmd.payload);
@@ -96,7 +96,7 @@ msp_result_e MspBase::process_command(msp_parameter_group_t& pg, const msp_const
     return ret;
 }
 
-void MspBase::process_reply(msp_parameter_group_t& pg, const msp_packet_t& reply)
+void MspBase::process_reply(msp_context_t& pg, const msp_packet_t& reply)
 {
     (void)pg;
     (void)reply;

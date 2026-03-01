@@ -10,7 +10,7 @@ void setUp() {
 void tearDown() {
 }
 
-struct msp_parameter_group_t {
+struct msp_context_t {
 };
 
 // NOLINTBEGIN(cppcoreguidelines-avoid-magic-numbers,cppcoreguidelines-explicit-virtual-functions,cppcoreguidelines-pro-bounds-pointer-arithmetic,hicpp-use-override,misc-const-correctness,misc-non-private-member-variables-in-classes,modernize-use-override,readability-magic-numbers,readability-redundant-access-specifiers)
@@ -18,7 +18,7 @@ class MspTest : public MspBase {
 public:
     enum { MSP_SET_NAME = 11 };
 public:
-    virtual msp_result_e process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) override;
+    virtual msp_result_e process_read_command(msp_context_t& pg, int16_t cmd_msp, StreamBufReader& src) override;
 public:
     std::array<uint8_t, 8> _name;
 };
@@ -26,7 +26,7 @@ public:
 /*
 MSP_SET_* commands handled in process_read_command
 */
-msp_result_e MspTest::process_read_command(msp_parameter_group_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
+msp_result_e MspTest::process_read_command(msp_context_t& pg, int16_t cmd_msp, StreamBufReader& src) // NOLINT(readability-convert-member-functions-to-static)
 {
     (void)pg;
 
@@ -50,7 +50,7 @@ void test_msp_set_name()
 {
     static MspTest msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 
@@ -153,7 +153,7 @@ void test_msp_set_name_loop()
 {
     static MspTest msp;
     static MspStream msp_stream(msp);
-    static msp_parameter_group_t pg;
+    static msp_context_t pg;
 
     msp_stream.set_packet_state(MSP_IDLE);
 
