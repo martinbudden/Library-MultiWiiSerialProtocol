@@ -49,7 +49,6 @@
 #include <stream_buf_reader.h>
 
 struct msp_context_t;
-struct serialPort_t;
 
 enum {
     PROTOCOL_SIMONK = 0,
