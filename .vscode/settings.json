@@ -17,6 +17,7 @@
         "clangtidy",
         "Cleanflight",
         "CLFL",
+        "cppcheck",
         "cppcoreguidelines",
         "cycletime",
         "DATAFLASH",
@@ -50,6 +51,7 @@
         "NAVCAP",
         "NAVI",
         "noreturn",
+        "Pico",
         "pioenvs",
         "poshold",
         "PROTOFLIGHT",
@@ -70,6 +72,7 @@
         "Waggressive",
         "Wattributes",
         "Wcast",
+        "Wconversion",
         "Wdeprecated",
         "Wdisabled",
         "Wdouble",
@@ -90,6 +93,7 @@
         "Wsign",
         "Wstrict",
         "Wtrampolines",
+        "Wunreachable",
         "Wunsafe",
         "Wunused"
     ]
